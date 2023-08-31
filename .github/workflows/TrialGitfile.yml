@@ -14,20 +14,6 @@ jobs:
 # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
-      
-      
-      # - name: Deploy CloudFormation stack
-      #   run: |
-      #     aws cloudformation deploy \
-      #       --stack-name yelpstack \
-      #       --template-file "TrialCFT2" \
-      #       --capabilities Lab_Role
-      #    env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: us-east-1
-      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      
 
       - name: create-test-bucket
         run: |
@@ -41,12 +27,12 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - uses: actions/checkout@master
-      - name: upload to s3
-        run: |
-          aws s3 cp .github/workflows/script.py s3://yelptemp/
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      # - uses: actions/checkout@master
+      # - name: upload to s3
+      #   run: |
+      #     aws s3 cp .github/workflows/script.py s3://yelptemp/
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
