@@ -6,3 +6,10 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: yelp-raw-data-in
+    VersioningConfiguration:
+        Status: disabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: False
+        BlockPublicPolicy: False
+        IgnorePublicAcls: False
+        RestrictPublicBuckets: False
