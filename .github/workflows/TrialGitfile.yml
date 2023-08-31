@@ -1,37 +1,52 @@
-name: combine1
-
+# This is a basic workflow to help you get started with Actions
+name: combine
+# Controls when the action will run. 
 on:
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [main]
+    branches: [ main ]
+# Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+# This workflow contains a single job called "build"
   build:
+# The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      
+      
+      # - name: Deploy CloudFormation stack
+      #   run: |
+      #     aws cloudformation deploy \
+      #       --stack-name yelpstack \
+      #       --template-file "TrialCFT2" \
+      #       --capabilities Lab_Role
+      #    env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      
 
-
-      - name: Deploy CloudFormation stack
+      - name: create-test-bucket
         run: |
           aws cloudformation deploy \
-            --stack-name Ketan1 \
-            --template-file .github/workflows/createbucket.yml \
-            --capabilities CAPABILITY_NAMED_IAM
-        env:
+            --stack-name yelpstack \
+            --template-file ".github/workflows/createbucket.yml" \
+            --capabilities Lab_Role
+         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Upload to S3
+      - uses: actions/checkout@master
+      - name: upload to s3
         run: |
-          aws s3 cp .github/workflows/index.py s3://firstketan/
+          aws s3 cp .github/workflows/script.py s3://yelptemp/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      
-      
