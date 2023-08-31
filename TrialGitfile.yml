@@ -1,0 +1,52 @@
+name: 'Deploy to AWS CloudFormation'
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}   #value will change every time lab started
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} #value will change every time lab started
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }} #value will change every time lab started
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  #value will change every time lab started
+
+
+      -name: Deploy AWS CloudFormation for bucket creation
+       uses: aws-actions/ aws-cloudformation-github-deploy@v1
+       with:
+        name: test-stack-bucket
+        template: createbucket.yml
+        no-fail-on-empty-changeset: "1"
+
+      
+      # - name: upload py to s3
+      #   run: aws s3 cp <glue-script-path.py> s3://<s3-path >   # check this path
+
+      
+      # -name: Deploy to AWS CloudFormation for resources creation
+      #  uses: aws-actions/aws-cloudformation-github-deploy@v1
+      #  with:
+      #   name: test-stack-ALL
+      #   template: TrialCFT.yml
+      #   no-fail-on-empty-changeset: "1"
+
+
+      # -name: dump data to s3
+      #  run: aws s3 cp s3://<path-of-data-to-copy> s3://yelp-raw-data-in    # check this path 
+
+
+
