@@ -1,0 +1,46 @@
+name: 'Deploy to AWS CloudFormation'
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-default-region: us-east-1
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      - name: Deploy AWS CloudFormation for bucket creation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: test-stack-bucket
+          template: createbucket.yml
+          no-fail-on-empty-changeset: "1"
+
+      - name: Upload py to S3
+        run: aws s3 cp index.py s3://yelp-raw-data-in/   # Check this path
+
+      # You can uncomment and customize the following steps as needed
+      # - name: Deploy to AWS CloudFormation for resources creation
+      #   uses: aws-actions/aws-cloudformation-github-deploy@v1
+      #   with:
+      #     name: test-stack-ALL
+      #     template: TrialCFT.yml
+      #     no-fail-on-empty-changeset: "1"
+
+      # - name: Dump data to S3
+      #   run: aws s3 cp s3://<path-of-data-to-copy> s3://yelp-raw-data-in    # Check this path
