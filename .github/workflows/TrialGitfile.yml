@@ -31,7 +31,7 @@ jobs:
           no-fail-on-empty-changeset: "1"
 
       - name: Upload py to S3
-        run: aws s3 cp index.py s3://yelp-raw-data-in/   # Check this path
+        run: aws s3 cp  .github/workflows/index.py s3://yelp-raw-data-in/   # Check this path
 
       # Uncomment and customize the following steps as needed
       # - name: Deploy to AWS CloudFormation for resources creation
@@ -43,3 +43,32 @@ jobs:
 
       # - name: Dump data to S3
       #   run: aws s3 cp s3://<path-of-data-to-copy> s3://yelp-raw-data-in    # Check this path
+
+
+
+
+# # This is a basic workflow to help you get started with Actions
+# name: combine
+# # Controls when the action will run. 
+# on:
+#   # Triggers the workflow on push or pull request events but only for the main branch
+#   push:
+#     branches: [ main ]
+# # Allows you to run this workflow manually from the Actions tab 
+#   workflow_dispatch:
+# # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# jobs:
+# # This workflow contains a single job called "build"
+#   build:
+# # The type of runner that the job will run on
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@master
+#       - name: upload to s3
+#         run: |
+#           aws s3 cp .github/workflows/Diksha.txt s3://githubtos3vishal/myfolder/
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+#           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
