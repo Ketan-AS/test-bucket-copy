@@ -1,49 +1,8 @@
-# AWSTemplateFormatVersion: "2010-09-09"
-# Description: Create an S3 Bucket
-
-# Resources:
-#   MyS3Bucket:
-#     Type: AWS::S3::Bucket
-#     Properties:
-#       BucketName: yelp-raw-data-in
-#     # VersioningConfiguration:
-#     #   Status: Enabled
-#     PublicAccessBlockConfiguration:
-#       BlockPublicAcls: false
-#       BlockPublicPolicy: false
-#       IgnorePublicAcls: false
-#       RestrictPublicBuckets: false
-
-
-
-# AWSTemplateFormatVersion: "2010-09-09"
-# Description: Create an S3 Bucket
-
-# Resources:
-#   MyS3Bucket:
-#     Type: AWS::S3::Bucket
-#     Properties:
-#       BucketName: yelp-raw-data-in
-#       AccessControl: PublicRead
-#       PublicAccessBlockConfiguration:
-#         BlockPublicAcls: false
-#         BlockPublicPolicy: false
-#         IgnorePublicAcls: false
-#         RestrictPublicBuckets: false
-
-
-AWSTemplateFormatVersion: "2010-09-09"
-Description: Create an S3 Bucket
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create an S3 bucket
 
 Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: yelp-raw-data-in
-      AccessControl: PublicRead
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
-
+      BucketName: firstketan
