@@ -2,11 +2,10 @@ name: 'Deploy to AWS CloudFormation'
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
-
+      - master
 
 jobs:
   deploy:
@@ -21,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-default-region: us-east-1
+          aws-region: us-east-1
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
       - name: Deploy AWS CloudFormation for bucket creation
@@ -34,7 +33,7 @@ jobs:
       - name: Upload py to S3
         run: aws s3 cp index.py s3://yelp-raw-data-in/   # Check this path
 
-      # You can uncomment and customize the following steps as needed
+      # Uncomment and customize the following steps as needed
       # - name: Deploy to AWS CloudFormation for resources creation
       #   uses: aws-actions/aws-cloudformation-github-deploy@v1
       #   with:
