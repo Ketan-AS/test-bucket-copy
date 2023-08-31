@@ -6,8 +6,8 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: yelp-raw-data-in
-    VersioningConfiguration:
-      Status: Suspended
+    # VersioningConfiguration:
+    #   Status: Enabled
     PublicAccessBlockConfiguration:
       BlockPublicAcls: false
       BlockPublicPolicy: false
