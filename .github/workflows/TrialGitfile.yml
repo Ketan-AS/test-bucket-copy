@@ -15,7 +15,7 @@ jobs:
       - name: Deploy CloudFormation stack for bucket
         run: |
           aws cloudformation deploy \
-            --stack-name yelpstack1 \
+            --stack-name yelpstack \
             --template-file .github/workflows/createbucket.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
@@ -44,7 +44,7 @@ jobs:
       - name: Deploy CloudFormation stack for ALL
         run: |
           aws cloudformation deploy \
-            --stack-name yelpstack1 \
+            --stack-name yelpstack \
             --template-file .github/workflows/TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
