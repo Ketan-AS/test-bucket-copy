@@ -1,6 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "AWS Glue job, Glue trigger, Glue workflow, Glue crawler, S3 buckets creation"
 
+Parameters:
+  GlueScriptS3Location:
+    Type: String
+    Description: "S3 location of the Glue script"
+    Default: "s3://yelptemp1/script.py" # Default value; customize as needed
+  InputBucketName:
+    Type: String
+    Description: "Name of the input S3 bucket"
+    Default: "yelp-input-data" # Default bucket name; customize as needed
+
+
 Resources:
   DatabaseYelp:
     Type: AWS::Glue::Database
