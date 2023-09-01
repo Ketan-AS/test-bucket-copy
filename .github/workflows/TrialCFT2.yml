@@ -1,18 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "AWS Glue job, Glue trigger, Glue workflow, Glue crawler, S3 buckets creation"
 
-Parameters:
-  GlueScriptS3Location:
-    Type: String
-    Description: "S3 location of the Glue script"
-    Default: "s3://yelptemp1/script.py" # Default value; customize as needed
-  InputBucketName:
-    Type: String
-    Description: "Name of the input S3 bucket"
-    Default: "yelp-input-data" # Default bucket name; customize as needed
-
-
 Resources:
+
   DatabaseYelp:
     Type: AWS::Glue::Database
     Properties:
@@ -20,21 +10,23 @@ Resources:
       DatabaseInput:
         Name: 'yelpdatabase'
         Description: "AWS Glue database creation"
-
+  
   CrawlerYelp:
     Type: AWS::Glue::Crawler
     Properties:
       Name: "Yelpcrawler"
-      Role: "LabRole" # Ensure that 'LabRole' exists and has necessary permissions.
-      Description: "AWS Glue crawler to crawl Yelp data"
+      Role: "LabRole"
+      Description: "AWS Glue crawler to crawl yelp data"
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: "s3://yelp-input-data/" # Updated S3 path to match your bucket name
+          - Path: "s3://yelp-output-data/"   # change the path
+      TablePrefix: "Cleanyelpdata"
       SchemaChangePolicy:
-        UpdateBehavior: "UPDATE_IN_DATABASE"
-        DeleteBehavior: "LOG"
-      Configuration: '{"Version": "1.0"}'
+        UpdateBehaviour: "UPDATE_IN_DATABASE"
+        DeleteBehaviour: "LOG"
+      Configuration: '{"Version":1.0}'
+
 
   Yelpinbucket:
     Type: AWS::S3::Bucket
@@ -45,30 +37,36 @@ Resources:
         - Event: 's3:ObjectCreated:*'
           Function: !GetAtt WorkflowLambda.Arn
 
+
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: "yelp-output-data"
 
+
   WorkflowJob:
-    Type: AWS::Glue::Job
+    Type: AWS::Glue::Job  
     Properties:
-      Role: "LabRole" # Ensure that 'LabRole' exists and has necessary permissions.
+      Role: "LabRole"
       Command:
-        Name: glueetl
-        ScriptLocation: !Sub 's3://yelptemp1/script.py' # Updated S3 path to your Glue script
-      AllocatedCapacity: 5 # Adjust as needed
-      MaxCapacity: 10 # Add a max capacity if necessary
-      Timeout: 60 # Set a timeout value if needed
+        Name: glue-etl
+        ScriptLocation: !Sub 's3://yelptemp1/script.py'    # change the path
+      AllocatedCapacity: 5 # check this 
+      ExecutionProperty:
+        MaxConcurrentRuns : 2 #  also check this
       Name: "data-cleaning"
-      GlueVersion: "3.0" # Updated Glue version
+      GlueVersion: 3.0
+
 
   WorkflowYelp:
     Type: AWS::Glue::Workflow
     Properties:
-      Description: "Create workflow"
-      MaxConcurrentRuns: 5
+      Description: "Create worklow"
+      MaxConcurrentRuns: 5  # check this value
       Name: "yelpworkflow"
+
+
+  
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -78,15 +76,17 @@ Resources:
       Description: "Trigger to start the workflow"
       Actions:
         - JobName: !Ref WorkflowJob
-      WorkflowName: !Ref WorkflowYelp
+      WorkflowName: !Ref Workflowyelp
+
+
 
   YelpCrawlerTrigger:
     Type: AWS::Glue::Trigger
     Properties:
       Name: "JobSuccessfulTrigger"
       Type: CONDITIONAL
-      StartOnCreation: TRUE
-      Description: 'Trigger to start the Yelp data crawler'
+      StartOnCreation : TRUE
+      Description: 'Trigger to start the yelp data crawler'
       Actions:
         - CrawlerName: !Ref CrawlerYelp
       Predicate:
@@ -95,6 +95,8 @@ Resources:
             JobName: !Ref WorkflowJob
             State: SUCCEEDED
       WorkflowName: !Ref WorkflowYelp
+
+
 
   WorkflowLambda:
     Type: AWS::Lambda::Function
@@ -109,14 +111,16 @@ Resources:
               response = glue.start_workflow_run(Name="yelpworkflow")
               print(response)
               return {
-                  'statusCode': 200,
-                  'body': json.dumps("Hello from AWS Lambda!")
+                  'statusCode' : 200,
+                  'body' : json.dumps("Hello from  AWS Lambda!")
               }
+
       Handler: index.lambda_handler
-      Role: "arn:aws:iam::742240590358:role/LabRole" # Replace with the appropriate IAM role ARN
+      Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the arn
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
+  
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -124,5 +128,5 @@ Resources:
       Action: Lambda:InvokeFunction
       Principal: "s3.amazonaws.com"
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !Sub arn:aws:s3:::yelp-input-data # Corrected SourceArn
+      SourceArn: !Sub arn:aws:s3::yelp-input-data      # Change the Arn of input data
 

@@ -1,17 +1,13 @@
-name: Combine1 Workflow
+name: combine1
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  deploy-stack-for-bucket:
+  build:
     runs-on: ubuntu-latest
-    env:
-      GlueScriptS3Location: s3://yelptemp1/script.py
-      InputBucketName: yelp-input-data
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,28 +24,25 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  
 
-  upload-to-s3:
-    runs-on: ubuntu-latest
-    steps:
       - name: Upload to S3
         run: |
-          aws s3 cp ${{ env.GlueScriptS3Location }} s3://${{ env.InputBucketName }}/
+          aws s3 cp .github/workflows/script.py s3://yelptemp1/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-
-  deploy-all-stack:
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy CloudFormation stack for ALL
         run: |
           aws cloudformation deploy \
-            --stack-name yelpstack \
+            --stack-name ketans \
             --template-file .github/workflows/TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      
+            
