@@ -9,9 +9,9 @@ Resources:
     Properties:
       EventSourceArn: !GetAtt Yelpinbucket.Arn
       FunctionName: !GetAtt WorkflowLambda.Arn
-      EventSourceMappings:
-        - EventSourceArn: !GetAtt Yelpinbucket.Arn
-          FunctionName: !GetAtt WorkflowLambda.Arn
+    EventSourceMappings:
+      - EventSourceArn: !GetAtt Yelpinbucket.Arn
+        FunctionName: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
@@ -70,7 +70,7 @@ Resources:
       Description: "Trigger to start the workflow"
       Actions:
         - JobName: !Ref WorkflowJob
-      WorkflowName: !Ref Workflowyelp
+      WorkflowName: !Ref WorkflowYelp
 
   YelpCrawlerTrigger:
     Type: AWS::Glue::Trigger
