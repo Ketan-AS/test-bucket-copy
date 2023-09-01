@@ -39,7 +39,7 @@ Resources:
       Role: "LabRole"
       Command:
         Name: glue-etl
-        ScriptLocation: !Sub 's3://yelptemp1/script.py'    # change the path
+        ScriptLocation: !Sub 's3://yelptemp/script.py'    # change the path
       AllocatedCapacity: 5 # check this 
       ExecutionProperty:
         MaxConcurrentRuns : 2 #  also check this
