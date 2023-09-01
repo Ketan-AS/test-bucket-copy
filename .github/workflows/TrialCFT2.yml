@@ -5,13 +5,11 @@ Resources:
       BucketName: 'yelp-input-data'
 
   S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !GetAtt WorkflowLambda.Arn
-    EventSourceMappings:
-      - EventSourceArn: !GetAtt Yelpinbucket.Arn
-        FunctionName: !GetAtt WorkflowLambda.Arn
+  Type: AWS::Lambda::EventSourceMapping
+  Properties:
+    EventSourceArn: !GetAtt Yelpinbucket.Arn
+    FunctionName: !GetAtt WorkflowLambda.Arn
+
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
