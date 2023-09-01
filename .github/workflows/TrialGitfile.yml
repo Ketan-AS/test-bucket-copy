@@ -37,8 +37,8 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-  # Add additional steps as needed for your workflow:
-  # - name: Deploy additional CloudFormation stacks
+  
+    # - name: Deploy additional CloudFormation stacks
   #   run: |
   #     aws cloudformation deploy \
   #       --stack-name your-stack-name \
