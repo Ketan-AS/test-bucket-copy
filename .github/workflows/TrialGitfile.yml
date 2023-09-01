@@ -1,55 +1,55 @@
-name: Deploy Yelp Stack
+# name: Deploy Yelp Stack
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [main]
+#   workflow_dispatch:
 
-jobs:
-  deploy-stack-for-bucket:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+# jobs:
+#   deploy-stack-for-bucket:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Deploy CloudFormation stack
-        run: |
-          aws cloudformation deploy \
-            --stack-name kk \
-            --template-file .github/workflows/TrialCFT2.yml \
-            --capabilities CAPABILITY_NAMED_IAM
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#       - name: Deploy CloudFormation stack
+#         run: |
+#           aws cloudformation deploy \
+#             --stack-name  \
+#             --template-file .github/workflows/TrialCFT2.yml \
+#             --capabilities CAPABILITY_NAMED_IAM
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: us-east-1
+#           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Upload to S3
-        run: |
-          aws s3 cp .github/workflows/script.py s3://yelptemp/
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#       - name: Upload to S3
+#         run: |
+#           aws s3 cp .github/workflows/script.py s3://yelptemp/
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_DEFAULT_REGION: us-east-1
+#           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      # - name: Deploy CloudFormation stack for ALL
-      #   run: |
-      #     aws cloudformation deploy \
-      #       --stack-name yelp1 \
-      #       --template-file .github/workflows/TrialCFT2.yml \
-      #       --capabilities CAPABILITY_NAMED_IAM
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: us-east-1
-      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#       # - name: Deploy CloudFormation stack for ALL
+#       #   run: |
+#       #     aws cloudformation deploy \
+#       #       --stack-name yelp1 \
+#       #       --template-file .github/workflows/TrialCFT2.yml \
+#       #       --capabilities CAPABILITY_NAMED_IAM
+#       #   env:
+#       #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       #     AWS_DEFAULT_REGION: us-east-1
+#       #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      # - name: Dump data to S3
-      #   run: aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data/ --recursive # Check this path
+#       # - name: Dump data to S3
+#       #   run: aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data/ --recursive # Check this path
         
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: us-east-1
-      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#       #   env:
+#       #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       #     AWS_DEFAULT_REGION: us-east-1
+#       #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
