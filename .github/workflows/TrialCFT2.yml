@@ -13,10 +13,10 @@ Resources:
     Properties:
       BucketName: 'yelp-input-data'
 
-  Yelpoutbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "yelp-output-data"
+  # Yelpoutbucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: "yelp-output-data"
 
   DatabaseYelp:
     Type: AWS::Glue::Database
