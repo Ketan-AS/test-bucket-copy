@@ -1,5 +1,17 @@
 Resources:
 
+  Yelpinbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'yelp-input-data'
+
+  S3EventTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt Yelpinbucket.Arn
+      FunctionName: !GetAtt WorkflowLambda.Arn
+
+
   WorkflowLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -21,17 +33,6 @@ Resources:
       Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the arn
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
-
-  Yelpinbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: 'yelp-input-data'
-
-  S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !GetAtt WorkflowLambda.Arn
 
 
   # Yelpoutbucket:
