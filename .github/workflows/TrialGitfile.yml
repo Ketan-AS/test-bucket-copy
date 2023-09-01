@@ -1,17 +1,13 @@
-name: Combine1 Workflow
+name: Deploy Yelp Stack
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   deploy-stack-for-bucket:
     runs-on: ubuntu-latest
-    env:
-      GlueScriptS3Location: s3://yelptemp1/script.py
-      InputBucketName: yelp-input-data
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,17 +24,22 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  
 
+  upload-to-s3:
+    runs-on: ubuntu-latest
+    needs: deploy-stack-for-bucket
+    steps:
       - name: Upload to S3
         run: |
-          aws s3 cp ${{ env.GlueScriptS3Location }} s3://${{ env.InputBucketName }}/
+          aws s3 cp .github/workflows/script.py s3://yelptemp1/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
-
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   deploy-all-stack:
     runs-on: ubuntu-latest
+    needs: upload-to-s3
     steps:
       - name: Deploy CloudFormation stack for ALL
         run: |
