@@ -1,5 +1,10 @@
 Resources:
 
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: yelptemp
+
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
