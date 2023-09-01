@@ -36,7 +36,7 @@ jobs:
       - name: Deploy CloudFormation stack for ALL
         run: |
           aws cloudformation deploy \
-            --stack-name ketans \
+            --stack-name yelpresourcestack \
             --template-file .github/workflows/TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
