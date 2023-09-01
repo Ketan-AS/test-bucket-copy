@@ -46,8 +46,8 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}    
 
-      # - name: Dump data to S3
-      #   run: aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data/ --recursive # Check this path
+      - name: Dump data to S3
+        run: aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data/ --recursive # Check this path
           
   
 
