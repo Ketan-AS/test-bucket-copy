@@ -33,11 +33,12 @@ jobs:
     steps:
       - name: Upload to S3
         run: |
-          aws s3 cp $GlueScriptS3Location s3://$InputBucketName/
+          aws s3 cp ${{ env.GlueScriptS3Location }} s3://${{ env.InputBucketName }}/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
+
 
   deploy-all-stack:
     runs-on: ubuntu-latest
