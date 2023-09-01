@@ -5,12 +5,54 @@ Resources:
     Properties:
       BucketName: 'yelp-input-data'
 
-  S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
+  Yelpoutbucket:
+    Type: AWS::S3::Bucket
     Properties:
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !GetAtt WorkflowLambda.Arn
+      BucketName: "yelp-output-data"
 
+  DatabaseYelp:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseInput:
+        Name: 'yelpdatabase'
+        Description: "AWS Glue database creation"
+
+  WorkflowYelp:
+    Type: AWS::Glue::Workflow
+    Properties:
+      Description: "Create workflow"
+      MaxConcurrentRuns: 5
+      Name: "yelpworkflow"
+
+  WorkflowJob:
+    Type: AWS::Glue::Job  
+    Properties:
+      Role: "LabRole"
+      Command:
+        Name: glue-etl
+        ScriptLocation: !Sub 's3://yelptemp/script.py'    # change the path
+      AllocatedCapacity: 5 # check this 
+      ExecutionProperty:
+        MaxConcurrentRuns : 2 #  also check this
+      Name: "data-cleaning"
+      GlueVersion: 3.0
+
+  CrawlerYelp:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: "Yelpcrawler"
+      Role: "LabRole"
+      Description: "AWS Glue crawler to crawl yelp data"
+      DatabaseName: !Ref DatabaseYelp
+      Targets:
+        S3Targets:
+          - Path: "s3://yelp-output-data/"   # change the path
+      TablePrefix: "Cleanyelpdata"
+      SchemaChangePolicy:
+        UpdateBehaviour: "UPDATE_IN_DATABASE"
+        DeleteBehaviour: "LOG"
+      Configuration: '{"Version":1.0}'
 
   WorkflowLambda:
     Type: AWS::Lambda::Function
@@ -34,89 +76,43 @@ Resources:
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WorkflowLambda
+      Action: Lambda:InvokeFunction
+      Principal: "s3.amazonaws.com"
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub arn:aws:s3:::yelp-input-data
 
-  # Yelpoutbucket:
-  #   Type: AWS::S3::Bucket
-  #   Properties:
-  #     BucketName: "yelp-output-data"
+  S3EventTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt Yelpinbucket.Arn
+      FunctionName: !GetAtt WorkflowLambda.Arn
 
-  # DatabaseYelp:
-  #   Type: AWS::Glue::Database
-  #   Properties:
-  #     CatalogId: !Ref 'AWS::AccountId'
-  #     DatabaseInput:
-  #       Name: 'yelpdatabase'
-  #       Description: "AWS Glue database creation"
+  WorkflowStartTrigger:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Name: 'StartTrigger'
+      Type: ON_DEMAND
+      Description: "Trigger to start the workflow"
+      Actions:
+        - JobName: !Ref WorkflowJob
+      WorkflowName: !Ref WorkflowYelp
 
-  # WorkflowYelp:
-  #   Type: AWS::Glue::Workflow
-  #   Properties:
-  #     Description: "Create workflow"
-  #     MaxConcurrentRuns: 5
-  #     Name: "yelpworkflow"
-
-  # WorkflowJob:
-  #   Type: AWS::Glue::Job  
-  #   Properties:
-  #     Role: "LabRole"
-  #     Command:
-  #       Name: glue-etl
-  #       ScriptLocation: !Sub 's3://yelptemp/script.py'    # change the path
-  #     AllocatedCapacity: 5 # check this 
-  #     ExecutionProperty:
-  #       MaxConcurrentRuns : 2 #  also check this
-  #     Name: "data-cleaning"
-  #     GlueVersion: 3.0
-
-  # CrawlerYelp:
-  #   Type: AWS::Glue::Crawler
-  #   Properties:
-  #     Name: "Yelpcrawler"
-  #     Role: "LabRole"
-  #     Description: "AWS Glue crawler to crawl yelp data"
-  #     DatabaseName: !Ref DatabaseYelp
-  #     Targets:
-  #       S3Targets:
-  #         - Path: "s3://yelp-output-data/"   # change the path
-  #     TablePrefix: "Cleanyelpdata"
-  #     SchemaChangePolicy:
-  #       UpdateBehaviour: "UPDATE_IN_DATABASE"
-  #       DeleteBehaviour: "LOG"
-  #     Configuration: '{"Version":1.0}'
-
-  # WorkflowStartTrigger:
-  #   Type: AWS::Glue::Trigger
-  #   Properties:
-  #     Name: 'StartTrigger'
-  #     Type: ON_DEMAND
-  #     Description: "Trigger to start the workflow"
-  #     Actions:
-  #       - JobName: !Ref WorkflowJob
-  #     WorkflowName: !Ref WorkflowYelp
-
-  # YelpCrawlerTrigger:
-  #   Type: AWS::Glue::Trigger
-  #   Properties:
-  #     Name: "JobSuccessfulTrigger"
-  #     Type: CONDITIONAL
-  #     StartOnCreation : TRUE
-  #     Description: 'Trigger to start the yelp data crawler'
-  #     Actions:
-  #       - CrawlerName: !Ref CrawlerYelp
-  #     Predicate:
-  #       Conditions:
-  #         - LogicalOperator: EQUALS
-  #           JobName: !Ref WorkflowJob
-  #           State: SUCCEEDED
-  #     WorkflowName: !Ref WorkflowYelp
-
-  
-
-  # LambdaInvokePermission:
-  #   Type: AWS::Lambda::Permission
-  #   Properties:
-  #     FunctionName: !Ref WorkflowLambda
-  #     Action: Lambda:InvokeFunction
-  #     Principal: "s3.amazonaws.com"
-  #     SourceAccount: !Ref AWS::AccountId
-  #     SourceArn: !Sub arn:aws:s3:::yelp-input-data      # Change the Arn of input data
+  YelpCrawlerTrigger:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Name: "JobSuccessfulTrigger"
+      Type: CONDITIONAL
+      StartOnCreation : TRUE
+      Description: 'Trigger to start the yelp data crawler'
+      Actions:
+        - CrawlerName: !Ref CrawlerYelp
+      Predicate:
+        Conditions:
+          - LogicalOperator: EQUALS
+            JobName: !Ref WorkflowJob
+            State: SUCCEEDED
+      WorkflowName: !Ref WorkflowYelp
