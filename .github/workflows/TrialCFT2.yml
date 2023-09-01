@@ -135,5 +135,4 @@ Resources:
       Action: Lambda:InvokeFunction
       Principal: "s3.amazonaws.com"
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !Sub arn:aws:s3::yelp-input-data      # Change the Arn of input data
-
+      SourceArn: !Sub arn:aws:s3:::yelp-input-data      # Change the Arn of input data
