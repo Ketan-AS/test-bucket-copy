@@ -1,4 +1,4 @@
-name: combine1
+name: Deploy Yelp Stack
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy-stack-for-bucket:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,7 +15,7 @@ jobs:
       - name: Deploy CloudFormation stack for bucket
         run: |
           aws cloudformation deploy \
-            --stack-name ketans \
+            --stack-name yelpstack \
             --template-file .github/workflows/createbucket.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
@@ -24,6 +24,10 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  
 
+  upload-to-s3:
+    runs-on: ubuntu-latest
+    needs: deploy-stack-for-bucket
+    steps:
       - name: Upload to S3
         run: |
           aws s3 cp .github/workflows/script.py s3://yelptemp1/
@@ -33,10 +37,14 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
+  deploy-all-stack:
+    runs-on: ubuntu-latest
+    needs: upload-to-s3
+    steps:
       - name: Deploy CloudFormation stack for ALL
         run: |
           aws cloudformation deploy \
-            --stack-name yelpresourcestack \
+            --stack-name yelpstack \
             --template-file .github/workflows/TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
@@ -44,5 +52,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      
-            
