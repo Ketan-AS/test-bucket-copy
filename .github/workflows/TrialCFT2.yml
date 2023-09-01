@@ -1,7 +1,22 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "AWS Glue job, Glue trigger, Glue workflow, Glue crawler, S3 buckets creation"
-
 Resources:
+  Yelpinbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'yelp-input-data'
+
+  S3EventTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt Yelpinbucket.Arn
+      FunctionName: !GetAtt WorkflowLambda.Arn
+      EventSourceMappings:
+        - EventSourceArn: !GetAtt Yelpinbucket.Arn
+          FunctionName: !GetAtt WorkflowLambda.Arn
+
+  Yelpoutbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "yelp-output-data"
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -10,7 +25,27 @@ Resources:
       DatabaseInput:
         Name: 'yelpdatabase'
         Description: "AWS Glue database creation"
-  
+
+  WorkflowYelp:
+    Type: AWS::Glue::Workflow
+    Properties:
+      Description: "Create workflow"
+      MaxConcurrentRuns: 5
+      Name: "yelpworkflow"
+
+  WorkflowJob:
+    Type: AWS::Glue::Job  
+    Properties:
+      Role: "LabRole"
+      Command:
+        Name: glue-etl
+        ScriptLocation: !Sub 's3://yelptemp1/script.py'    # change the path
+      AllocatedCapacity: 5 # check this 
+      ExecutionProperty:
+        MaxConcurrentRuns : 2 #  also check this
+      Name: "data-cleaning"
+      GlueVersion: 3.0
+
   CrawlerYelp:
     Type: AWS::Glue::Crawler
     Properties:
@@ -27,54 +62,6 @@ Resources:
         DeleteBehaviour: "LOG"
       Configuration: '{"Version":1.0}'
 
-
-  Yelpinbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: 'yelp-input-data'
-
-# Add an S3 event trigger to invoke the Lambda function when objects are created
-  S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !GetAtt WorkflowLambda.Arn
-      EventSourceMappings:
-        - EventSourceArn: !GetAtt Yelpinbucket.Arn
-          FunctionName: !GetAtt WorkflowLambda.Arn
-
-
-  Yelpoutbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "yelp-output-data"
-
-
-  WorkflowJob:
-    Type: AWS::Glue::Job  
-    Properties:
-      Role: "LabRole"
-      Command:
-        Name: glue-etl
-        ScriptLocation: !Sub 's3://yelptemp1/script.py'    # change the path
-      AllocatedCapacity: 5 # check this 
-      ExecutionProperty:
-        MaxConcurrentRuns : 2 #  also check this
-      Name: "data-cleaning"
-      GlueVersion: 3.0
-
-
-  WorkflowYelp:
-    Type: AWS::Glue::Workflow
-    Properties:
-      Description: "Create workflow"
-      MaxConcurrentRuns: 5
-      Name: "yelpworkflow"
-
-
-
-  
-
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
     Properties:
@@ -84,8 +71,6 @@ Resources:
       Actions:
         - JobName: !Ref WorkflowJob
       WorkflowName: !Ref Workflowyelp
-
-
 
   YelpCrawlerTrigger:
     Type: AWS::Glue::Trigger
@@ -102,8 +87,6 @@ Resources:
             JobName: !Ref WorkflowJob
             State: SUCCEEDED
       WorkflowName: !Ref WorkflowYelp
-
-
 
   WorkflowLambda:
     Type: AWS::Lambda::Function
@@ -127,7 +110,6 @@ Resources:
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
-  
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
