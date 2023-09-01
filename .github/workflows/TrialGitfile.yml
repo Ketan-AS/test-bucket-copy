@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy CloudFormation stack for bucket
+      - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
             --stack-name yelpstack \
@@ -22,12 +22,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-  upload-to-s3:
-    runs-on: ubuntu-latest
-    needs: deploy-stack-for-bucket
-    steps:
       - name: Upload to S3
         run: |
           aws s3 cp .github/workflows/script.py s3://yelptemp/
@@ -36,6 +32,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      
+      
 
   
   # - name: Deploy additional CloudFormation stacks
