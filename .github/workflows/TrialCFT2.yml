@@ -8,23 +8,23 @@ Resources:
       BucketName: "yelptemp"
 
 
-  # Yelpinbucket:
-  #   Type: AWS::S3::Bucket
-  #   Properties:
-  #     BucketName: 'yelp-input-data'
+  Yelpinbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'yelp-input-data'
 
-  # Yelpoutbucket:
-  #   Type: AWS::S3::Bucket
-  #   Properties:
-  #     BucketName: "yelp-output-data"
+  Yelpoutbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "yelp-output-data"
 
-#   DatabaseYelp:
-#     Type: AWS::Glue::Database
-#     Properties:
-#       CatalogId: !Ref 'AWS::AccountId'
-#       DatabaseInput:
-#         Name: 'yelpdatabase'
-#         Description: "AWS Glue database creation"
+  DatabaseYelp:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseInput:
+        Name: 'yelpdatabase'
+        Description: "AWS Glue database creation"
 
 #   WorkflowYelp:
 #     Type: AWS::Glue::Workflow
