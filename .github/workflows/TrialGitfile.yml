@@ -38,7 +38,7 @@ jobs:
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   
-    # - name: Deploy additional CloudFormation stacks
+  # - name: Deploy additional CloudFormation stacks
   #   run: |
   #     aws cloudformation deploy \
   #       --stack-name your-stack-name \
