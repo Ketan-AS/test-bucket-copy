@@ -2,11 +2,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an S3 bucket
 
 Resources:
-
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: yelptemp
+      BucketName: "yelptemp"
+
 
   # Yelpinbucket:
   #   Type: AWS::S3::Bucket
