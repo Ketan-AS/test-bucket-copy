@@ -163,6 +163,33 @@ Resources:
       Principal: s3.amazonaws.com
       SourceArn: !GetAtt Yelpinbucket.Arn
 
+  S3EventTrigger:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt CopyS3DataLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: 
+        Fn::GetAtt:
+          - Yelpinbucket
+          - Arn
+
+      EventSourceToken: !GetAtt Yelpinbucket.Arn
+
+      SourceAccount: !Ref AWS::AccountId
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt Yelpinbucket.Arn
+
+  S3BucketNotificationConfiguration:
+    Type: AWS::S3::BucketNotification
+    Properties:
+      Bucket: !Ref Yelpinbucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          -
+            Event: 's3:ObjectCreated:*'
+            Function: !GetAtt CopyS3DataLambda.Arn
+
 Outputs:
   WorkflowLambdaArn:
     Description: 'ARN of the AWS Lambda function for the workflow'
