@@ -5,18 +5,18 @@ Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "yelptemp"
+      BucketName: "yelptemp-g3"
 
 
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'yelp-input-data'
+      BucketName: 'yelp-input-data-g3'
 
   # Yelpoutbucket:
   #   Type: AWS::S3::Bucket
   #   Properties:
-  #     BucketName: "yelp-output-data"
+  #     BucketName: "yelp-output-data-g3"
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -39,7 +39,7 @@ Resources:
 #       Role: arn:aws:iam::742240590358:role/LabRole
 #       Command:
 #         Name: glue-etl
-#         ScriptLocation: s3://yelptemp/script.py    # change the path
+#         ScriptLocation: s3://yelptemp-g3/script.py    # change the path
 #       AllocatedCapacity: 5 # check this 
 #       ExecutionProperty:
 #         MaxConcurrentRuns : 2 #  also check this
@@ -59,7 +59,7 @@ Resources:
 #       DatabaseName: !Ref DatabaseYelp
 #       Targets:
 #         S3Targets:
-#           - Path: "s3://yelp-output-data/"   # change the path
+#           - Path: "s3://yelp-output-data-g3/"   # change the path
 #       TablePrefix: "Cleanyelpdata"
 #       SchemaChangePolicy:
 #         UpdateBehaviour: "UPDATE_IN_DATABASE"
@@ -95,7 +95,7 @@ Resources:
 #       Action: Lambda:InvokeFunction
 #       Principal: "s3.amazonaws.com"
 #       SourceAccount: !Ref AWS::AccountId
-#       SourceArn: !Sub arn:aws:s3:::yelp-input-data
+#       SourceArn: !Sub arn:aws:s3:::yelp-input-data-g3
 
 #   S3EventTrigger:
 #     Type: AWS::Lambda::EventSourceMapping
