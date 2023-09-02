@@ -2,7 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Resources:
-
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -33,11 +32,10 @@ Resources:
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: glue-etl
+        Name: glueetl
         ScriptLocation: s3://bdata-script/script.py    # change the path
-      AllocatedCapacity: 5 # check this 
       ExecutionProperty:
-        MaxConcurrentRuns : 2 #  also check this
+        MaxConcurrentRuns: 2
       Name: "data-cleaning"
       GlueVersion: 3.0
       WorkerType: "G.1X"
@@ -57,8 +55,8 @@ Resources:
           - Path: "s3://yelp-output-data-g3/"   # change the path
       TablePrefix: "Cleanyelpdata"
       SchemaChangePolicy:
-        UpdateBehaviour: "UPDATE_IN_DATABASE"
-        DeleteBehaviour: "LOG"
+        UpdateBehavior: "UPDATE_IN_DATABASE"
+        DeleteBehavior: "LOG"
       Configuration: '{"Version":1.0}'
 
   WorkflowLambda:
@@ -87,7 +85,7 @@ Resources:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref WorkflowLambda
-      Action: Lambda:InvokeFunction
+      Action: lambda:InvokeFunction
       Principal: "s3.amazonaws.com"
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !Sub arn:aws:s3:::yelp-input-data-g3
@@ -113,7 +111,7 @@ Resources:
     Properties:
       Name: "JobSuccessfulTrigger"
       Type: CONDITIONAL
-      StartOnCreation : TRUE
+      StartOnCreation: TRUE
       Description: 'Trigger to start the yelp data crawler'
       Actions:
         - CrawlerName: !Ref CrawlerYelp
