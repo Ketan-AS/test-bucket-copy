@@ -134,4 +134,12 @@ Resources:
       Name: "AthenaConnectionToYelpDatabase"
       Description: "Athena connection to the Yelp Glue database"
       Database: "yelpdatabase" # Name of your Glue database
-      QueryString: "SELECT * FROM business_final; SELECT * FROM tips_final; SELECT * FROM checkin_final; SELECT * FROM review_final; SELECT * FROM user_final;" # Execute multiple queries
+      QueryString:
+        Fn::Sub:
+          - |
+            SELECT * FROM business_final;
+            SELECT * FROM tips_final;
+            SELECT * FROM checkin_final;
+            SELECT * FROM review_final;
+            SELECT * FROM user_final;
+          - {}
