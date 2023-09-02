@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
-Yelpinbucket:
-  Type: AWS::S3::Bucket
-  Properties:
-    BucketName: 'yelp-input-data'
-    NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: 's3:ObjectCreated:*'
-          Function: !GetAtt WorkflowLambda.Arn
+Resources:
+  Yelpinbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'yelp-input-data'
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
