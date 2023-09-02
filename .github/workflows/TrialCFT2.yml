@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Resources:
+
+  TempS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "yelp-temp-g3"
+
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -27,13 +33,33 @@ Resources:
       MaxConcurrentRuns: 5
       Name: "yelpworkflow"
 
+  UploadScriptFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: "arn:aws:iam::742240590358:role/LabRole"
+      FunctionName: UploadScriptFunction
+      Code:
+        S3Bucket: <YourLambdaDeploymentBucket>
+        S3Key: <PathToLambdaDeploymentPackage>
+      Runtime: python3.8
+      Timeout: 60
+
+  UploadScriptCustomResource:
+    Type: Custom::UploadScript
+    Properties:
+      ServiceToken: !GetAtt UploadScriptFunction.Arn
+      BucketName: yelp-temp-g3
+      ScriptFileName: script.py
+      LocalFilePath: .github//script.py
+
   WorkflowJob:
-    Type: AWS::Glue::Job  
+    Type: AWS::Glue::Job
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: glueetl
-        ScriptLocation: s3://bdata-script/script.py    # change the path
+        Name: glue-etl
+        ScriptLocation: s3://yelp-temp-g3/script.py
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: "data-cleaning"
@@ -52,11 +78,11 @@ Resources:
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: "s3://yelp-output-data-g3/"   # change the path
+          - Path: "s3://yelp-output-data-g3/"
       TablePrefix: "Cleanyelpdata"
       SchemaChangePolicy:
-        UpdateBehavior: "UPDATE_IN_DATABASE"
-        DeleteBehavior: "LOG"
+        UpdateBehaviour: "UPDATE_IN_DATABASE"
+        DeleteBehaviour: "LOG"
       Configuration: '{"Version":1.0}'
 
   WorkflowLambda:
@@ -68,33 +94,37 @@ Resources:
           import boto3
 
           def lambda_handler(event, context):
-              glue = boto3.client("glue")
-              response = glue.start_workflow_run(Name="yelpworkflow")
-              print(response)
+              s3 = boto3.client("s3")
+              source_bucket = "yelp-raw-data"
+              destination_bucket = "yelp-input-data-g3"
+
+              # List objects in the source bucket
+              objects = s3.list_objects_v2(Bucket=source_bucket)
+
+              if 'Contents' in objects:
+                  for obj in objects['Contents']:
+                      # Copy each object from the source to the destination bucket
+                      copy_source = {'Bucket': source_bucket, 'Key': obj['Key']}
+                      s3.copy_object(CopySource=copy_source, Bucket=destination_bucket, Key=obj['Key'])
+
               return {
-                  'statusCode' : 200,
-                  'body' : json.dumps("Hello from AWS Lambda!")
+                  'statusCode': 200,
+                  'body': json.dumps("Objects copied successfully from yelp-raw-data to yelp-input-data-g3")
               }
 
       Handler: index.lambda_handler
-      Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the arn
+      Role: "arn:aws:iam::742240590358:role/LabRole"
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
-  LambdaInvokePermission:
+  S3BucketEvent:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref WorkflowLambda
       Action: lambda:InvokeFunction
-      Principal: "s3.amazonaws.com"
+      FunctionName: !GetAtt WorkflowLambda.Arn
+      Principal: s3.amazonaws.com
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !Sub arn:aws:s3:::yelp-input-data-g3
-
-  S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !GetAtt WorkflowLambda.Arn
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -127,7 +157,7 @@ Resources:
     Properties:
       Name: "AthenaConnectionToYelpDatabase"
       Description: "Athena connection to the Yelp Glue database"
-      Database: "yelpdatabase" # Name of your Glue database
+      Database: "yelpdatabase"
       QueryString:
         Fn::Sub:
           - |
