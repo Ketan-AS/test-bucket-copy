@@ -117,14 +117,7 @@ Resources:
             State: SUCCEEDED
       WorkflowName: !Ref WorkflowYelp
 
-  S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: 1
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !GetAtt WorkflowLambda.Arn
-
-AthenaConnection:
+  AthenaConnection:
     Type: AWS::Athena::NamedQuery
     Properties:
       Name: 'AthenaConnectionToYelpDatabase'
