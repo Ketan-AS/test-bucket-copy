@@ -7,11 +7,6 @@ Resources:
     Properties:
       BucketName: 'yelp-input-data-g3'
 
-  Yelpoutbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: 'yelp-output-data-g3'
-
   DatabaseYelp:
     Type: AWS::Glue::Database
     Properties:
@@ -53,7 +48,7 @@ Resources:
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: 's3://yelp-output-data-g3/'  # Change the path
+          - Path: 's3://yelp-input-data-g3/'  # Change the path
       TablePrefix: 'Cleanyelpdata'
       SchemaChangePolicy:
         UpdateBehavior: 'UPDATE_IN_DATABASE'
@@ -101,37 +96,17 @@ Resources:
         - JobName: !Ref WorkflowJob
       WorkflowName: !Ref WorkflowYelp
 
-  YelpCrawlerTrigger:
-    Type: AWS::Glue::Trigger
+  S3EventTrigger:
+    Type: AWS::S3::Bucket
     Properties:
-      Name: 'JobSuccessfulTrigger'
-      Type: CONDITIONAL
-      StartOnCreation: TRUE
-      Description: 'Trigger to start the Yelp data crawler'
-      Actions:
-        - CrawlerName: !Ref CrawlerYelp
-      Predicate:
-        Conditions:
-          - LogicalOperator: EQUALS
-            JobName: !Ref WorkflowJob
-            State: SUCCEEDED
-      WorkflowName: !Ref WorkflowYelp
-
-  AthenaConnection:
-    Type: AWS::Athena::NamedQuery
-    Properties:
-      Name: 'AthenaConnectionToYelpDatabase'
-      Description: 'Athena connection to the Yelp Glue database'
-      Database: 'yelpdatabase'  # Name of your Glue database
-      QueryString:
-        Fn::Sub:
-          - |
-            SELECT * FROM business_final;
-            SELECT * FROM tips_final;
-            SELECT * FROM checkin_final;
-            SELECT * FROM review_final;
-            SELECT * FROM user_final;
-          - {}
+      Bucket: !Ref Yelpinbucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function:
+              Fn::GetAtt:
+                - WorkflowLambda
+                - Arn
 
 Outputs:
   WorkflowLambdaArn:
