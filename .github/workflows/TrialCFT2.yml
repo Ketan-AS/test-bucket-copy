@@ -171,4 +171,4 @@ Resources:
 
 Outputs:
   WorkflowLambdaArn:
-    Description: 'ARN of the AWS
+    Description: 'ARN of the AWS'
