@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template to create an S3 bucket
+Description: CloudFormation template to create AWS resources
 
 Resources:
   MyS3Bucket:
@@ -79,7 +79,7 @@ Resources:
               print(response)
               return {
                   'statusCode' : 200,
-                  'body' : json.dumps("Hello from  AWS Lambda!")
+                  'body' : json.dumps("Hello from AWS Lambda!")
               }
 
       Handler: index.lambda_handler
@@ -134,8 +134,4 @@ Resources:
       Name: "AthenaConnectionToYelpDatabase"
       Description: "Athena connection to the Yelp Glue database"
       Database: "yelpdatabase" # Name of your Glue database
-      QueryString: "SELECT * FROM business_final"
-      QueryString: "SELECT * FROM tips_final"
-      QueryString: "SELECT * FROM checkin_final"
-      QueryString: "SELECT * FROM review_final"
-      QueryString: "SELECT * FROM user_final" # Optional initial query
+      QueryString: "SELECT * FROM business_final; SELECT * FROM tips_final; SELECT * FROM checkin_final; SELECT * FROM review_final; SELECT * FROM user_final;" # Execute multiple queries
