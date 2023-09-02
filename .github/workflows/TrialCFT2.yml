@@ -2,12 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Resources:
-
-  TempS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "yelp-temp-g3"
-
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -16,7 +10,7 @@ Resources:
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "yelp-output-data-g3"
+      BucketName: 'yelp-output-data-g3'
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -24,47 +18,28 @@ Resources:
       CatalogId: !Ref 'AWS::AccountId'
       DatabaseInput:
         Name: 'yelpdatabase'
-        Description: "AWS Glue database creation"
+        Description: 'AWS Glue database creation'
 
   WorkflowYelp:
     Type: AWS::Glue::Workflow
     Properties:
-      Description: "Create workflow"
+      Description: 'Create workflow'
       MaxConcurrentRuns: 5
-      Name: "yelpworkflow"
-
-  UploadScriptFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: index.handler
-      Role: "arn:aws:iam::742240590358:role/LabRole"
-      FunctionName: UploadScriptFunction
-      Code:
-        S3Bucket: <YourLambdaDeploymentBucket>
-        S3Key: <PathToLambdaDeploymentPackage>
-      Runtime: python3.8
-      Timeout: 60
-
-  UploadScriptCustomResource:
-    Type: Custom::UploadScript
-    Properties:
-      ServiceToken: !GetAtt UploadScriptFunction.Arn
-      BucketName: yelp-temp-g3
-      ScriptFileName: script.py
-      LocalFilePath: .github//script.py
+      Name: 'yelpworkflow'
 
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: glue-etl
-        ScriptLocation: s3://yelp-temp-g3/script.py
+        Name: 'glueetl'
+        ScriptLocation: 's3://bdata-script/script.py'  # Change the path
+      AllocatedCapacity: 5  # Adjust this as needed
       ExecutionProperty:
-        MaxConcurrentRuns: 2
-      Name: "data-cleaning"
-      GlueVersion: 3.0
-      WorkerType: "G.1X"
+        MaxConcurrentRuns: 2  # Adjust this as needed
+      Name: 'data-cleaning'
+      GlueVersion: '3.0'
+      WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
       Timeout: 200
@@ -72,17 +47,17 @@ Resources:
   CrawlerYelp:
     Type: AWS::Glue::Crawler
     Properties:
-      Name: "Yelpcrawler"
-      Role: "LabRole"
-      Description: "AWS Glue crawler to crawl yelp data"
+      Name: 'Yelpcrawler'
+      Role: 'LabRole'
+      Description: 'AWS Glue crawler to crawl Yelp data'
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: "s3://yelp-output-data-g3/"
-      TablePrefix: "Cleanyelpdata"
+          - Path: 's3://yelp-output-data-g3/'  # Change the path
+      TablePrefix: 'Cleanyelpdata'
       SchemaChangePolicy:
-        UpdateBehaviour: "UPDATE_IN_DATABASE"
-        DeleteBehaviour: "LOG"
+        UpdateBehavior: 'UPDATE_IN_DATABASE'
+        DeleteBehavior: 'LOG'
       Configuration: '{"Version":1.0}'
 
   WorkflowLambda:
@@ -94,44 +69,40 @@ Resources:
           import boto3
 
           def lambda_handler(event, context):
-              s3 = boto3.client("s3")
-              source_bucket = "yelp-raw-data"
-              destination_bucket = "yelp-input-data-g3"
-
-              # List objects in the source bucket
-              objects = s3.list_objects_v2(Bucket=source_bucket)
-
-              if 'Contents' in objects:
-                  for obj in objects['Contents']:
-                      # Copy each object from the source to the destination bucket
-                      copy_source = {'Bucket': source_bucket, 'Key': obj['Key']}
-                      s3.copy_object(CopySource=copy_source, Bucket=destination_bucket, Key=obj['Key'])
-
+              glue = boto3.client('glue')
+              response = glue.start_workflow_run(Name='yelpworkflow')
+              print(response)
               return {
                   'statusCode': 200,
-                  'body': json.dumps("Objects copied successfully from yelp-raw-data to yelp-input-data-g3")
+                  'body': json.dumps('Hello from AWS Lambda!')
               }
 
       Handler: index.lambda_handler
-      Role: "arn:aws:iam::742240590358:role/LabRole"
+      Role: 'arn:aws:iam::742240590358:role/LabRole'  # Different for everyone, change the ARN
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
-  S3BucketEvent:
+  LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
+      FunctionName: !Ref WorkflowLambda
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt WorkflowLambda.Arn
-      Principal: s3.amazonaws.com
+      Principal: 's3.amazonaws.com'
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !Sub arn:aws:s3:::yelp-input-data-g3
+      SourceArn: !Sub 'arn:aws:s3:::${Yelpinbucket}'
+
+  S3EventTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt Yelpinbucket.Arn
+      FunctionName: !GetAtt WorkflowLambda.Arn
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
     Properties:
       Name: 'StartTrigger'
       Type: ON_DEMAND
-      Description: "Trigger to start the workflow"
+      Description: 'Trigger to start the workflow'
       Actions:
         - JobName: !Ref WorkflowJob
       WorkflowName: !Ref WorkflowYelp
@@ -139,10 +110,10 @@ Resources:
   YelpCrawlerTrigger:
     Type: AWS::Glue::Trigger
     Properties:
-      Name: "JobSuccessfulTrigger"
+      Name: 'JobSuccessfulTrigger'
       Type: CONDITIONAL
       StartOnCreation: TRUE
-      Description: 'Trigger to start the yelp data crawler'
+      Description: 'Trigger to start the Yelp data crawler'
       Actions:
         - CrawlerName: !Ref CrawlerYelp
       Predicate:
@@ -155,9 +126,9 @@ Resources:
   AthenaConnection:
     Type: AWS::Athena::NamedQuery
     Properties:
-      Name: "AthenaConnectionToYelpDatabase"
-      Description: "Athena connection to the Yelp Glue database"
-      Database: "yelpdatabase"
+      Name: 'AthenaConnectionToYelpDatabase'
+      Description: 'Athena connection to the Yelp Glue database'
+      Database: 'yelpdatabase'  # Name of your Glue database
       QueryString:
         Fn::Sub:
           - |
