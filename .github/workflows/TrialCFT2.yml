@@ -89,7 +89,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: 'lambda.amazonaws.com'  # Corrected the principal
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt WorkflowLambda.Arn  # Use GetAtt instead of Sub
+      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -105,9 +105,8 @@ Resources:
     Type: AWS::Glue::Trigger
     Properties:
       Name: 'YelpCrawlerTrigger'
-      Type: SCHEDULED  # Execute as a scheduled trigger
+      Type: ON_DEMAND  # Change this to ON_DEMAND to trigger manually
       Description: 'Trigger to start the Yelp data crawler'
-      Schedule: 'cron(0 0 * * ? *)'  # Modify the schedule as needed
       Actions:
         - CrawlerName: !Ref CrawlerYelp
       Predicate:
