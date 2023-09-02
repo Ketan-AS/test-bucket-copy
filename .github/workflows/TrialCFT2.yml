@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template to create AWS resources
+Description: CloudFormation template to create AWS resources for copying data
 
 Resources:
   Yelpinbucket:
@@ -133,7 +133,42 @@ Resources:
             SELECT * FROM user_final;
           - {}
 
+  CopyS3DataLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+
+          def lambda_handler(event, context):
+              s3 = boto3.client('s3')
+              source_bucket = 'yelp-raw-data'  # Change to your source bucket
+              destination_bucket = 'yelp-input-data-g3'
+              s3.copy_object(
+                  CopySource={'Bucket': source_bucket, 'Key': event['Records'][0]['s3']['object']['key']},
+                  Bucket=destination_bucket,
+                  Key=event['Records'][0]['s3']['object']['key']
+              )
+              return 'Data copied successfully'
+
+      Handler: index.lambda_handler
+      Role: 'arn:aws:iam::742240590358:role/LabRole'  # Change to your Lambda execution role
+      Runtime: python3.8
+
+  CopyS3DataLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref CopyS3DataLambda
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt Yelpinbucket.Arn
+
+  S3EventTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt Yelpinbucket.Arn
+      FunctionName: !Ref CopyS3DataLambda
+
 Outputs:
   WorkflowLambdaArn:
-    Description: 'ARN of the AWS Lambda function for the workflow'
-    Value: !GetAtt WorkflowLambda.Arn
+    Description: 'ARN of the AWS
