@@ -3,11 +3,6 @@ Description: CloudFormation template to create AWS resources
 
 Resources:
 
-  TempS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "yelp-temp-g3"
-
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -33,27 +28,16 @@ Resources:
       MaxConcurrentRuns: 5
       Name: "yelpworkflow"
 
-  UploadScriptFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: index.handler
-      Role: "arn:aws:iam::742240590358:role/LabRole"  # Replace with your Lambda execution role ARN
-      FunctionName: UploadScriptFunction
-      Code:
-        S3Bucket: yelp-temp-g3
-        S3Key: scripts/script.py  # Change the path to your script in S3
-      Runtime: python3.8
-      Timeout: 60
-
   WorkflowJob:
-    Type: AWS::Glue::Job
+    Type: AWS::Glue::Job  
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: glue-etl
-        ScriptLocation: s3://yelp-temp-g3/scripts/script.py  # Corrected script location
+        ScriptLocation: s3://bdata-script/script.py    # change the path
+      AllocatedCapacity: 5 # check this 
       ExecutionProperty:
-        MaxConcurrentRuns: 2
+        MaxConcurrentRuns : 2 #  also check this
       Name: "data-cleaning"
       GlueVersion: 3.0
       WorkerType: "G.1X"
@@ -86,26 +70,16 @@ Resources:
           import boto3
 
           def lambda_handler(event, context):
-              s3 = boto3.client("s3")
-              source_bucket = "yelp-raw-data"  # Change this to your source bucket name
-              destination_bucket = "yelp-input-data-g3"  # Change this to your destination bucket name
-
-              # List objects in the source bucket
-              objects = s3.list_objects_v2(Bucket=source_bucket)
-
-              if 'Contents' in objects:
-                  for obj in objects['Contents']:
-                      # Copy each object from the source to the destination bucket
-                      copy_source = {'Bucket': source_bucket, 'Key': obj['Key']}
-                      s3.copy_object(CopySource=copy_source, Bucket=destination_bucket, Key=obj['Key'])
-
+              glue = boto3.client("glue")
+              response = glue.start_workflow_run(Name="yelpworkflow")
+              print(response)
               return {
-                  'statusCode': 200,
-                  'body': json.dumps("Objects copied successfully from yelp-raw-data to yelp-input-data-g3")
+                  'statusCode' : 200,
+                  'body' : json.dumps("Hello from AWS Lambda!")
               }
 
       Handler: index.lambda_handler
-      Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the ARN
+      Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the arn
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
@@ -116,7 +90,7 @@ Resources:
       Action: Lambda:InvokeFunction
       Principal: "s3.amazonaws.com"
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !Sub arn:aws:s3:::yelp-raw-data
+      SourceArn: !Sub arn:aws:s3:::yelp-input-data-g3
 
   S3EventTrigger:
     Type: AWS::Lambda::EventSourceMapping
@@ -139,7 +113,7 @@ Resources:
     Properties:
       Name: "JobSuccessfulTrigger"
       Type: CONDITIONAL
-      StartOnCreation: TRUE
+      StartOnCreation : TRUE
       Description: 'Trigger to start the yelp data crawler'
       Actions:
         - CrawlerName: !Ref CrawlerYelp
