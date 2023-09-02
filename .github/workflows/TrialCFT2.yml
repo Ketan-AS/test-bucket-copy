@@ -5,7 +5,7 @@ Resources:
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'your-unique-input-bucket-name'
+      BucketName: 'your-input-bucket-name'  # Replace with your input bucket name
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: 's3:ObjectCreated:*'
@@ -14,7 +14,7 @@ Resources:
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'your-unique-output-bucket-name'
+      BucketName: 'your-output-bucket-name'  # Replace with your output bucket name
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -34,10 +34,10 @@ Resources:
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
-      Role: arn:aws:iam::742240590358:role/LabRole
+      Role: 'your-glue-job-role-arn'  # Replace with your Glue job role ARN
       Command:
         Name: 'glueetl'
-        ScriptLocation: 's3://bdata-script/script.py'  # Change the path
+        ScriptLocation: 's3://your-script-bucket/script.py'  # Replace with your script location
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: 'data-cleaning'
@@ -52,12 +52,12 @@ Resources:
     Type: AWS::Glue::Crawler
     Properties:
       Name: 'Yelpcrawler'
-      Role: 'LabRole'
+      Role: 'your-glue-crawler-role-arn'  # Replace with your Glue crawler role ARN
       Description: 'AWS Glue crawler to crawl Yelp data'
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: 's3://yelp-output-data-g3/'  # Change the path
+          - Path: 's3://your-output-bucket-name/'  # Replace with your output bucket path
       TablePrefix: 'Cleanyelpdata'
       SchemaChangePolicy:
         UpdateBehavior: 'UPDATE_IN_DATABASE'
@@ -82,7 +82,7 @@ Resources:
               }
 
       Handler: index.lambda_handler
-      Role: 'arn:aws:iam::742240590358:role/LabRole'  # Different for everyone, change the ARN
+      Role: 'your-lambda-role-arn'  # Replace with your Lambda function role ARN
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
@@ -91,9 +91,9 @@ Resources:
     Properties:
       FunctionName: !Ref WorkflowLambda
       Action: lambda:InvokeFunction
-      Principal: 'lambda.amazonaws.com'  # Corrected the principal
+      Principal: 'lambda.amazonaws.com'
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
+      SourceArn: !GetAtt Yelpinbucket.Arn
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -126,7 +126,7 @@ Resources:
     Properties:
       Name: 'AthenaConnectionToYelpDatabase'
       Description: 'Athena connection to the Yelp Glue database'
-      Database: !Ref DatabaseYelp  # Use the Glue database created earlier
+      Database: !Ref DatabaseYelp
       QueryString:
         Fn::Sub:
           - |
