@@ -29,6 +29,7 @@ Resources:
 
   WorkflowJob:
     Type: AWS::Glue::Job
+    DependsOn: CopyS3DataLambda  # Added dependency
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
@@ -150,6 +151,39 @@ Resources:
             SELECT * FROM user_final;
           - {}
 
+  CopyS3DataLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+
+          def lambda_handler(event, context):
+              s3 = boto3.client('s3')
+              source_bucket = 'yelp-raw-data'  # Change to your source bucket
+              destination_bucket = 'yelp-input-data-g3'
+              
+              # List objects in the source bucket
+              objects = s3.list_objects_v2(Bucket=source_bucket)
+              
+              # Copy each object to the destination bucket
+              for obj in objects.get('Contents', []):
+                  source_key = obj['Key']
+                  destination_key = source_key  # You can modify this if you want to rename objects
+                  
+                  # Copy the object
+                  s3.copy_object(
+                      CopySource={'Bucket': source_bucket, 'Key': source_key},
+                      Bucket=destination_bucket,
+                      Key=destination_key
+                  )
+              
+              return 'Data copied successfully'
+
+      Handler: index.lambda_handler
+      Role: 'arn:aws:iam::742240590358:role/LabRole'  # Change to your Lambda execution role
+      Runtime: python3.8
+
   CopyS3DataLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -159,6 +193,4 @@ Resources:
       SourceArn: !GetAtt Yelpinbucket.Arn
 
 Outputs:
-  WorkflowLambdaArn:
-    Description: 'ARN of the AWS Lambda function for the workflow'
-    Value: !GetAtt WorkflowLambda.Arn
+  WorkflowLambda
