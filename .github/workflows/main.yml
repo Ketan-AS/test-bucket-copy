@@ -12,11 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-       
+
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --stack-name yelpresource \
+            --stack-name yelpresource1 \
             --template-file .github/workflows/TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
