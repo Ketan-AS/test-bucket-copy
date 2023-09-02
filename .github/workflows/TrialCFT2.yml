@@ -6,6 +6,10 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-input-data-g3'
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function: !GetAtt WorkflowLambda.Arn 
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
