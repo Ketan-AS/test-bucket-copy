@@ -1,54 +1,48 @@
 # AWSTemplateFormatVersion: '2010-09-09'
 # Description: CloudFormation template to create an S3 bucket
 
-Resources:
-  MyS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "yelptemp-g3"
-
-
-  Yelpinbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: 'yelp-input-data-g3'
+# Resources:
+#   MyS3Bucket:
+#     Type: AWS::S3::Bucket
+#     Properties:
+#       BucketName: "yelptemp-g3"
 
   # Yelpoutbucket:
   #   Type: AWS::S3::Bucket
   #   Properties:
   #     BucketName: "yelp-output-data-g3"
 
-  DatabaseYelp:
-    Type: AWS::Glue::Database
-    Properties:
-      CatalogId: !Ref 'AWS::AccountId'
-      DatabaseInput:
-        Name: 'yelpdatabase'
-        Description: "AWS Glue database creation"
+  # DatabaseYelp:
+  #   Type: AWS::Glue::Database
+  #   Properties:
+  #     CatalogId: !Ref 'AWS::AccountId'
+  #     DatabaseInput:
+  #       Name: 'yelpdatabase'
+  #       Description: "AWS Glue database creation"
 
-  WorkflowYelp:
-    Type: AWS::Glue::Workflow
-    Properties:
-      Description: "Create workflow"
-      MaxConcurrentRuns: 5
-      Name: "yelpworkflow"
+  # WorkflowYelp:
+  #   Type: AWS::Glue::Workflow
+  #   Properties:
+  #     Description: "Create workflow"
+  #     MaxConcurrentRuns: 5
+  #     Name: "yelpworkflow"
 
-  WorkflowJob:
-    Type: AWS::Glue::Job  
-    Properties:
-      Role: arn:aws:iam::742240590358:role/LabRole
-      Command:
-        Name: glue-etl
-        ScriptLocation: s3://yelptemp-g3/script.py    # change the path
-      AllocatedCapacity: 5 # check this 
-      ExecutionProperty:
-        MaxConcurrentRuns : 2 #  also check this
-      Name: "data-cleaning"
-      GlueVersion: 3.0
-      WorkerType: "G.1X"
-      MaxRetries: 0
-      NumberOfWorkers: 5
-      Timeout: 200
+  # WorkflowJob:
+  #   Type: AWS::Glue::Job  
+  #   Properties:
+  #     Role: arn:aws:iam::742240590358:role/LabRole
+  #     Command:
+  #       Name: glue-etl
+  #       ScriptLocation: s3://yelptemp-g3/script.py    # change the path
+  #     AllocatedCapacity: 5 # check this 
+  #     ExecutionProperty:
+  #       MaxConcurrentRuns : 2 #  also check this
+  #     Name: "data-cleaning"
+  #     GlueVersion: 3.0
+  #     WorkerType: "G.1X"
+  #     MaxRetries: 0
+  #     NumberOfWorkers: 5
+  #     Timeout: 200
 
 #   CrawlerYelp:
 #     Type: AWS::Glue::Crawler
@@ -128,3 +122,15 @@ Resources:
 #             JobName: !Ref WorkflowJob
 #             State: SUCCEEDED
 #       WorkflowName: !Ref WorkflowYelp
+
+  # AthenaConnection:
+  #   Type: AWS::Athena::NamedQuery
+  #   Properties:
+  #     Name: "AthenaConnectionToYelpDatabase"
+  #     Description: "Athena connection to the Yelp Glue database"
+  #     Database: "yelpdatabase" # Name of your Glue database
+  #     QueryString: "SELECT * FROM business_final"
+  #     QueryString: "SELECT * FROM tips_final"
+  #     QueryString: "SELECT * FROM checkin_final"
+  #     QueryString: "SELECT * FROM review_final"
+  #     QueryString: "SELECT * FROM user_final" # Optional initial query
