@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template to create AWS resources for copying data
+Description: CloudFormation template to create AWS resources for copying data and triggering Glue job
 
 Resources:
   Yelpinbucket:
@@ -149,6 +149,12 @@ Resources:
                   Bucket=destination_bucket,
                   Key=event['Records'][0]['s3']['object']['key']
               )
+
+              # Add logic to trigger the Glue job here
+              glue = boto3.client('glue')
+              response = glue.start_job_run(JobName='data-cleaning')
+              print(response)
+
               return 'Data copied successfully'
 
       Handler: index.lambda_handler
@@ -162,33 +168,6 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: s3.amazonaws.com
       SourceArn: !GetAtt Yelpinbucket.Arn
-
-  S3EventTrigger:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !GetAtt CopyS3DataLambda.Arn
-      Action: lambda:InvokeFunction
-      Principal: s3.amazonaws.com
-      SourceArn: 
-        Fn::GetAtt:
-          - Yelpinbucket
-          - Arn
-
-      EventSourceToken: !GetAtt Yelpinbucket.Arn
-
-      SourceAccount: !Ref AWS::AccountId
-      Principal: s3.amazonaws.com
-      SourceArn: !GetAtt Yelpinbucket.Arn
-
-  S3BucketNotificationConfiguration:
-    Type: AWS::S3::BucketNotification
-    Properties:
-      Bucket: !Ref Yelpinbucket
-      NotificationConfiguration:
-        LambdaConfigurations:
-          -
-            Event: 's3:ObjectCreated:*'
-            Function: !GetAtt CopyS3DataLambda.Arn
 
 Outputs:
   WorkflowLambdaArn:
