@@ -42,7 +42,7 @@ Resources:
         ScriptLocation: s3://yelp-temp-g3/script.py    # change the path
       AllocatedCapacity: 5 # check this 
       ExecutionProperty:
-        MaxConcurrentRuns : 2 #  also check this
+        MaxConcurrentRuns: 2 #  also check this
       Name: "data-cleaning"
       GlueVersion: 3.0
       WorkerType: "G.1X"
@@ -79,8 +79,8 @@ Resources:
               response = glue.start_workflow_run(Name="yelpworkflow")
               print(response)
               return {
-                  'statusCode' : 200,
-                  'body' : json.dumps("Hello from AWS Lambda!")
+                  'statusCode': 200,
+                  'body': json.dumps("Hello from AWS Lambda!")
               }
 
       Handler: index.lambda_handler
@@ -118,7 +118,7 @@ Resources:
     Properties:
       Name: "JobSuccessfulTrigger"
       Type: CONDITIONAL
-      StartOnCreation : TRUE
+      StartOnCreation: TRUE
       Description: 'Trigger to start the yelp data crawler'
       Actions:
         - CrawlerName: !Ref CrawlerYelp
@@ -140,7 +140,4 @@ Resources:
           - |
             SELECT * FROM business_final;
             SELECT * FROM tips_final;
-            SELECT * FROM checkin_final;
-            SELECT * FROM review_final;
-            SELECT * FROM user_final;
-          - {}
+            SELECT * FROM checkin
