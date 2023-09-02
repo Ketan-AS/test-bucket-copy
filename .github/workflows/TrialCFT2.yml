@@ -163,12 +163,6 @@ Resources:
       Principal: s3.amazonaws.com
       SourceArn: !GetAtt Yelpinbucket.Arn
 
-  S3EventTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt Yelpinbucket.Arn
-      FunctionName: !Ref CopyS3DataLambda
-
 Outputs:
   WorkflowLambdaArn:
     Description: 'ARN of the AWS Lambda function for the workflow'
