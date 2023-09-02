@@ -9,7 +9,7 @@ Resources:
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: 's3:ObjectCreated:*'
-            Function: !GetAtt WorkflowLambda.Arn 
+            Function: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
