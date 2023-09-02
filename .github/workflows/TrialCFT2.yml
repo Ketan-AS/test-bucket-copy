@@ -26,12 +26,12 @@ Resources:
         Name: 'yelpdatabase'
         Description: "AWS Glue database creation"
 
-#   WorkflowYelp:
-#     Type: AWS::Glue::Workflow
-#     Properties:
-#       Description: "Create workflow"
-#       MaxConcurrentRuns: 5
-#       Name: "yelpworkflow"
+  WorkflowYelp:
+    Type: AWS::Glue::Workflow
+    Properties:
+      Description: "Create workflow"
+      MaxConcurrentRuns: 5
+      Name: "yelpworkflow"
 
 #   WorkflowJob:
 #     Type: AWS::Glue::Job  
