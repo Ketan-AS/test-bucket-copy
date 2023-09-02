@@ -16,7 +16,7 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --stack-name yelpresource1 \
+            --stack-name yelpresource2 \
             --template-file .github/workflows/TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM
         env:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Upload to S3 Bucket
         run: |
-          aws s3 cp .github/workflows/script.py s3://yelptemp-g3/
+          aws s3 cp .github/workflows/script.py s3://yelp-temp-g3/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

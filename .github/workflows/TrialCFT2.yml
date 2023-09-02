@@ -2,10 +2,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Resources:
+
   TempS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "yelptemp-g3"
+      BucketName: "yelp-temp-g3"
 
   Yelpinbucket:
     Type: AWS::S3::Bucket
@@ -38,7 +39,7 @@ Resources:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: glue-etl
-        ScriptLocation: s3://yelptemp-g3/script.py    # change the path
+        ScriptLocation: s3://yelp-temp-g3/script.py    # change the path
       AllocatedCapacity: 5 # check this 
       ExecutionProperty:
         MaxConcurrentRuns : 2 #  also check this

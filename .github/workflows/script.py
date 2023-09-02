@@ -26,7 +26,7 @@ job.init(args['JOB_NAME'], args)
 
 # STEP 1
 
-bussdf = spark.read.json("s3://yelp-input-data/yelp_academic_dataset_business.json")
+bussdf = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_business.json")
 
 attributes_to_check = [
      "AcceptsInsurance", "AgesAllowed", "Alcohol", "Ambience", "BYOB",
@@ -89,7 +89,7 @@ for day in days_of_week:
 
 # STEP 4
 
-checkin_df = spark.read.json("s3://yelp-input-data/yelp_academic_dataset_checkin.json")
+checkin_df = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_checkin.json")
 checkin_df = checkin_df.withColumn("date_time", split(col("date"), ","))
 checkin_df = checkin_df.withColumn("date_time_exploded", explode(col("date_time")))
 checkin_df = checkin_df.withColumn("timestamp", col("date_time_exploded").cast("timestamp"))
@@ -98,7 +98,7 @@ checkin_df = checkin_df.withColumn("time", date_format(col("timestamp"), "HH:mm:
 checkin_df = checkin_df.select("business_id", "date", "time")
 
 # STEP - 5
-tips_df = spark.read.json("s3://yelp-input-data/yelp_academic_dataset_tip.json")
+tips_df = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_tip.json")
 
 preprocessed_tips = tips_df.withColumn("preprocessed_text",
     split(lower(regexp_replace(col("text"), "[^a-zA-Z\\s]", "")), " ")
@@ -130,12 +130,12 @@ tip_sent = grouped_words.withColumn("sentiment", vader_sentiment_udf(grouped_wor
 
 # STEP - 6
 
-rev = spark.read.json('s3://yelp-input-data/yelp_academic_dataset_review.json')
+rev = spark.read.json('s3://yelp-input-data-g3/yelp_academic_dataset_review.json')
 rev_sentiment = rev.withColumn("sentiment", vader_sentiment_udf(rev["text"]))
 
 # STEP - 7
 
-userdf = spark.read.json("s3://yelp-input-data/yelp_academic_dataset_user.json")
+userdf = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_user.json")
 df = userdf.withColumn("yelping_since_timestamp", to_timestamp(col("yelping_since"), "yyyy-MM-dd HH:mm:ss")) \
     .withColumn("yelping_since_date", date_format(col("yelping_since_timestamp"), "yyyy-MM-dd"))
 
@@ -158,10 +158,10 @@ rev_sentiment = rev_sentiment.repartition(1)
 df = df.repartition(1)
 
 
-yelp_df.write.json("s3://yelp-output-data/business_final/", mode = "overwrite")
-tip_sent.write.json("s3://yelp-output-data/tips_final/", mode = "overwrite")
-checkin_df.write.json("s3://yelp-output-data/checkin_final/", mode = "overwrite")
-rev_sentiment.write.json("s3://yelp-output-data/review_final/", mode = 'overwrite')
-df.write.json("s3://yelp-output-data/user_final/", mode = 'overwrite')
+yelp_df.write.json("s3://yelp-output-data-g3/business_final/", mode = "overwrite")
+tip_sent.write.json("s3://yelp-output-data-g3/tips_final/", mode = "overwrite")
+checkin_df.write.json("s3://yelp-output-data-g3/checkin_final/", mode = "overwrite")
+rev_sentiment.write.json("s3://yelp-output-data-g3/review_final/", mode = 'overwrite')
+df.write.json("s3://yelp-output-data-g3/user_final/", mode = 'overwrite')
 
 job.commit()
