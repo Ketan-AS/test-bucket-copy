@@ -105,8 +105,9 @@ Resources:
     Type: AWS::Glue::Trigger
     Properties:
       Name: 'YelpCrawlerTrigger'
-      Type: ON_DEMAND  # Trigger manually
+      Type: SCHEDULED  # Execute as a scheduled trigger
       Description: 'Trigger to start the Yelp data crawler'
+      Schedule: 'cron(0 0 * * ? *)'  # Modify the schedule as needed
       Actions:
         - CrawlerName: !Ref CrawlerYelp
       Predicate:
