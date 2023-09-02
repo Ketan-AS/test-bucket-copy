@@ -33,13 +33,25 @@ Resources:
       MaxConcurrentRuns: 5
       Name: "yelpworkflow"
 
+  UploadScriptFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: "arn:aws:iam::742240590358:role/LabRole"  # Replace with your Lambda execution role ARN
+      FunctionName: UploadScriptFunction
+      Code:
+        S3Bucket: yelp-temp-g3
+        S3Key: scripts/script.py  # Change the path to your script in S3
+      Runtime: python3.8
+      Timeout: 60
+
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: glue-etl
-        ScriptLocation: s3://yelp-temp-g3/script.py
+        ScriptLocation: s3://yelp-temp-g3/scripts/script.py  # Corrected script location
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: "data-cleaning"
@@ -48,7 +60,6 @@ Resources:
       MaxRetries: 0
       NumberOfWorkers: 5
       Timeout: 200
-
 
   CrawlerYelp:
     Type: AWS::Glue::Crawler
