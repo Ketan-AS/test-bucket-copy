@@ -34,7 +34,7 @@ Resources:
       Name: "yelpworkflow"
 
   WorkflowJob:
-    Type: AWS::Glue::Job  
+    Type: AWS::Glue::Job
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
@@ -75,16 +75,26 @@ Resources:
           import boto3
 
           def lambda_handler(event, context):
-              glue = boto3.client("glue")
-              response = glue.start_workflow_run(Name="yelpworkflow")
-              print(response)
+              s3 = boto3.client("s3")
+              source_bucket = "yelp-raw-data"  # Change this to your source bucket name
+              destination_bucket = "yelp-input-data-g3"  # Change this to your destination bucket name
+
+              # List objects in the source bucket
+              objects = s3.list_objects_v2(Bucket=source_bucket)
+
+              if 'Contents' in objects:
+                  for obj in objects['Contents']:
+                      # Copy each object from the source to the destination bucket
+                      copy_source = {'Bucket': source_bucket, 'Key': obj['Key']}
+                      s3.copy_object(CopySource=copy_source, Bucket=destination_bucket, Key=obj['Key'])
+
               return {
                   'statusCode': 200,
-                  'body': json.dumps("Hello from AWS Lambda!")
+                  'body': json.dumps("Objects copied successfully from yelp-raw-data to yelp-input-data-g3")
               }
 
       Handler: index.lambda_handler
-      Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the arn
+      Role: "arn:aws:iam::742240590358:role/LabRole"   # Different for everyone, Change the ARN
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
@@ -95,7 +105,7 @@ Resources:
       Action: Lambda:InvokeFunction
       Principal: "s3.amazonaws.com"
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !Sub arn:aws:s3:::yelp-input-data-g3
+      SourceArn: !Sub arn:aws:s3:::yelp-raw-data
 
   S3EventTrigger:
     Type: AWS::Lambda::EventSourceMapping
@@ -140,4 +150,7 @@ Resources:
           - |
             SELECT * FROM business_final;
             SELECT * FROM tips_final;
-            SELECT * FROM checkin
+            SELECT * FROM checkin_final;
+            SELECT * FROM review_final;
+            SELECT * FROM user_final;
+          - {}
