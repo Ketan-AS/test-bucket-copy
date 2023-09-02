@@ -34,15 +34,15 @@ Resources:
       Command:
         Name: 'glueetl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
-      AllocatedCapacity: 5  # Adjust this as needed
       ExecutionProperty:
-        MaxConcurrentRuns: 2  # Adjust this as needed
+        MaxConcurrentRuns: 2
       Name: 'data-cleaning'
       GlueVersion: '3.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
       Timeout: 200
+      AllocatedCapacity: 0  # Set to 0 to avoid conflicts
 
   CrawlerYelp:
     Type: AWS::Glue::Crawler
@@ -138,3 +138,4 @@ Resources:
             SELECT * FROM review_final;
             SELECT * FROM user_final;
           - {}
+
