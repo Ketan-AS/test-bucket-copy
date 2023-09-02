@@ -84,7 +84,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: 'lambda.amazonaws.com'  # Corrected the principal
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
+      SourceArn: !GetAtt WorkflowLambda.Arn  # Use GetAtt instead of Sub
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -95,18 +95,6 @@ Resources:
       Actions:
         - JobName: !Ref WorkflowJob
       WorkflowName: !Ref WorkflowYelp
-
-  S3EventTrigger:
-    Type: AWS::S3::Bucket
-    Properties:
-      Bucket: !Ref Yelpinbucket
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: 's3:ObjectCreated:*'
-            Function:
-              Fn::GetAtt:
-                - WorkflowLambda
-                - Arn
 
 Outputs:
   WorkflowLambdaArn:
