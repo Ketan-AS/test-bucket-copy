@@ -32,7 +32,7 @@ Resources:
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: 'glue-etl'
+        Name: 'glueetl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 2
@@ -53,7 +53,7 @@ Resources:
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: 's3://yelp-output-data-g3/'  # Change the path
+          - Path: 's3://yelp-input-data-g3/'  # Change the path
       TablePrefix: 'Cleanyelpdata'
       SchemaChangePolicy:
         UpdateBehavior: 'UPDATE_IN_DATABASE'
@@ -89,7 +89,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: 'lambda.amazonaws.com'  # Corrected the principal
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
+      SourceArn: !GetAtt WorkflowLambda.Arn  # Use GetAtt instead of Sub
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -104,9 +104,8 @@ Resources:
   YelpCrawlerTrigger:
     Type: AWS::Glue::Trigger
     Properties:
-      Name: 'JobSuccessfulTrigger'
-      Type: START_ON_DEMAND
-      StartOnCreation: TRUE
+      Name: 'YelpCrawlerTrigger'
+      Type: ON_DEMAND  # Trigger manually
       Description: 'Trigger to start the Yelp data crawler'
       Actions:
         - CrawlerName: !Ref CrawlerYelp
@@ -116,22 +115,6 @@ Resources:
             JobName: !Ref WorkflowJob
             State: SUCCEEDED
       WorkflowName: !Ref WorkflowYelp
-
-  AthenaConnection:
-    Type: AWS::Athena::NamedQuery
-    Properties:
-      Name: 'AthenaConnectionToYelpDatabase'
-      Description: 'Athena connection to the Yelp Glue database'
-      Database: 'yelpdatabase'  # Name of your Glue database
-      QueryString:
-        Fn::Sub:
-          - |
-            SELECT * FROM business_final;
-            SELECT * FROM tips_final;
-            SELECT * FROM checkin_final;
-            SELECT * FROM review_final;
-            SELECT * FROM user_final;
-          - {}
 
 Outputs:
   WorkflowLambdaArn:
