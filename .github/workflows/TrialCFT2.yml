@@ -5,7 +5,7 @@ Resources:
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'yelp-input-data-g3'
+      BucketName: 'your-unique-input-bucket-name'
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: 's3:ObjectCreated:*'
@@ -14,7 +14,7 @@ Resources:
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'yelp-output-data-g3'
+      BucketName: 'your-unique-output-bucket-name'
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -126,7 +126,7 @@ Resources:
     Properties:
       Name: 'AthenaConnectionToYelpDatabase'
       Description: 'Athena connection to the Yelp Glue database'
-      Database: 'yelpdatabase'  # Name of your Glue database
+      Database: !Ref DatabaseYelp  # Use the Glue database created earlier
       QueryString:
         Fn::Sub:
           - |
