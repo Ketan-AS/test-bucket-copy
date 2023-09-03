@@ -99,20 +99,7 @@ Resources:
       Description: 'Trigger to start the workflow'
       Actions:
         - JobName: !Ref WorkflowJob
-      WorkflowName: !Ref WorkflowYelp
-
-  S3EventTrigger:
-    Type: AWS::Glue::Trigger
-    Properties:
-      Name: 'S3EventTrigger'
-      Type: CONDITIONAL
-      Actions:
-        - StartWorkflowRun: {}
-      Predicate:
-        Conditions:
-          - LogicalOperator: EQUALS
-            CrawlerName: !Ref CrawlerYelp
-            State: SUCCEEDED
+          SecurityConfiguration: !Ref CrawlerYelp  # Add this line
       WorkflowName: !Ref WorkflowYelp
 
   AthenaConnection:
