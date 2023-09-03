@@ -48,6 +48,7 @@ Resources:
       NumberOfWorkers: 5
       Timeout: 200
       AllocatedCapacity: 0  # Set to 0 to avoid conflicts
+    DependsOn: DatabaseYelp
 
   CrawlerYelp:
     Type: AWS::Glue::Crawler
@@ -64,6 +65,7 @@ Resources:
         UpdateBehavior: 'UPDATE_IN_DATABASE'
         DeleteBehavior: 'LOG'
       Configuration: '{"Version":1.0}'
+    DependsOn: WorkflowJob
 
   WorkflowLambda:
     Type: AWS::Lambda::Function
@@ -137,16 +139,6 @@ Resources:
             SELECT * FROM review_final;
             SELECT * FROM user_final;
           - {}
-
-  S3EventLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !GetAtt WorkflowLambda.Arn
-      Principal: s3.amazonaws.com
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn
-      DependsOn: LambdaInvokePermission
 
 Outputs:
   WorkflowLambdaArn:
