@@ -33,7 +33,7 @@ Resources:
   S3EventTrigger:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref Yelpinbucket
+      BucketName: !GetAtt Yelpinbucket.Arn
       NotificationConfiguration:
         LambdaConfigurations:
           -
