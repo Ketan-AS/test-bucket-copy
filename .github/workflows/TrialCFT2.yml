@@ -39,7 +39,7 @@ Resources:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: 'glue-etl'
-        ScriptLocation: 's3://bdata-script/script.py'  # Change the path
+        SparkScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: 'data-cleaning'
