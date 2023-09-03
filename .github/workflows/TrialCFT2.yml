@@ -73,28 +73,12 @@ Resources:
           import boto3
 
           def lambda_handler(event, context):
-              # Check if the event is an S3 event
-              if 'Records' in event and len(event['Records']) > 0:
-                  s3_event = event['Records'][0]['s3']
-                  
-                  # Check if the event is for an object creation
-                  if s3_event['eventName'].startswith('ObjectCreated'):
-                      bucket_name = s3_event['bucket']['name']
-                      object_key = s3_event['object']['key']
-                      
-                      # Start the Glue workflow
-                      glue = boto3.client('glue')
-                      response = glue.start_workflow_run(Name='yelpworkflow')
-                      
-                      return {
-                          'statusCode': 200,
-                          'body': json.dumps(f'Started workflow for object: s3://{bucket_name}/{object_key}')
-                      }
-              
-              # If the event is not an S3 object creation event, return a message
+              glue = boto3.client('glue')
+              response = glue.start_workflow_run(Name='yelpworkflow')
+              print(response)
               return {
                   'statusCode': 200,
-                  'body': json.dumps('No S3 object creation event detected')
+                  'body': json.dumps('Start Workflow!')
               }
 
       Handler: index.lambda_handler
