@@ -12,7 +12,7 @@ Resources:
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
-            Function: arn:aws:lambda:us-east-1:742240590358:function:LambdaforWorkflow
+            Function: !GetAtt WorkflowLambda.Arn
 
 
 
