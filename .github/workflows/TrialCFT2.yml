@@ -6,16 +6,41 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-input-data-g3'
-      NotificationConfiguration:
-        LambdaConfigurations:
-          -
-            Event: 's3:ObjectCreated:*'
-            Function: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-output-data-g3'
+
+  S3EventLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt WorkflowLambda.Arn
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt Yelpinbucket.Arn
+    DependsOn: Yelpinbucket
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WorkflowLambda
+      Action: lambda:InvokeFunction
+      Principal: 'lambda.amazonaws.com'
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt Yelpinbucket.Arn
+    DependsOn: Yelpinbucket
+
+  S3EventTrigger:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref Yelpinbucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          -
+            Event: 's3:ObjectCreated:*'
+            Function: !GetAtt WorkflowLambda.Arn
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -88,15 +113,6 @@ Resources:
       Role: 'arn:aws:iam::742240590358:role/LabRole'  # Different for everyone, change the ARN
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
-
-  LambdaInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref WorkflowLambda
-      Action: lambda:InvokeFunction
-      Principal: 'lambda.amazonaws.com'  # Corrected the principal
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
