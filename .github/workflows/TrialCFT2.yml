@@ -39,7 +39,10 @@ Resources:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: 'glue-etl'
-        SparkScriptLocation: 's3://bdata-script/script.py'  # Change the path
+        ScriptLocation: 's3://bdata-script/script.py'  # Change the path to your script
+        PythonVersion: '3'  # Specify the Python version if needed
+        ScriptLocationType: 'S3'  # Specify that the script location is in S3
+        SparkScriptLocation: 's3://bdata-script/script.py'  # Specify the Spark script location
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: 'data-cleaning'
@@ -47,8 +50,9 @@ Resources:
       WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
-      Timeout: 250
+      Timeout: 200
       AllocatedCapacity: 0  # Set to 0 to avoid conflicts
+
 
   CrawlerYelp:
     Type: AWS::Glue::Crawler
