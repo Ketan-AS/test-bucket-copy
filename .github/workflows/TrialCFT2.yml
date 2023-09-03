@@ -99,14 +99,14 @@ Resources:
   #     SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
 
   LambdaInvokePermission:
-    Type: AWS::Lambda::Permission
-    DependsOn: WorkflowLambda
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !GetAtt WorkflowLambda.Arn
-      Principal: "s3.amazonaws.com"
-      # SourceArn: !Sub 'arn:aws:s3:::${project}-${app}-${env}-scripts'
-      SourceArn: !GetAtt Yelpinbucket.Arn
+    Type: AWS::Lambda::Permission
+    DependsOn: WorkflowLambda
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt WorkflowLambda.Arn
+      Principal: "s3.amazonaws.com"
+      # SourceArn: !Sub 'arn:aws:s3:::${project}-${app}-${env}-scripts'
+      SourceArn: !GetAtt Yelpinbucket.Arn
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
