@@ -32,7 +32,7 @@ Resources:
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: 'glue-etl'
+        Name: 'glueetl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 2
@@ -74,7 +74,7 @@ Resources:
               print(response)
               return {
                   'statusCode': 200,
-                  'body': json.dumps('Start Workflow!')
+                  'body': json.dumps('Hello from AWS Lambda!')
               }
 
       Handler: index.lambda_handler
@@ -99,7 +99,22 @@ Resources:
       Description: 'Trigger to start the workflow'
       Actions:
         - JobName: !Ref WorkflowJob
-          SecurityConfiguration: !Ref CrawlerYelp  # Add this line
+      WorkflowName: !Ref WorkflowYelp
+
+  YelpCrawlerTrigger:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Name: 'JobSuccessfulTrigger'
+      Type: CONDITIONAL
+      StartOnCreation: TRUE
+      Description: 'Trigger to start the Yelp data crawler'
+      Actions:
+        - CrawlerName: !Ref CrawlerYelp
+      Predicate:
+        Conditions:
+          - LogicalOperator: EQUALS
+            JobName: !Ref WorkflowJob
+            State: SUCCEEDED
       WorkflowName: !Ref WorkflowYelp
 
   AthenaConnection:
