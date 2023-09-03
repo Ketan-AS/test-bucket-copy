@@ -5,38 +5,26 @@ Resources:
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'yelp-input-data-g3-unique'  # Choose a unique name here
+      BucketName: 'yelp-input-data-g3'
+
+
+
+  Yelpinbucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    DependsOn: S3InvokeLambdaPermission
+    Properties:
+      BucketName: 'yelp-input-data-g3'
       NotificationConfiguration:
         LambdaConfigurations:
-          -
-            Event: 's3:ObjectCreated:*'
+          - Event: s3:ObjectCreated:*
             Function: !GetAtt WorkflowLambda.Arn
-          -
-            Event: 's3:ObjectRemoved:*'
-            Function: !GetAtt WorkflowLambda.Arn
+
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-output-data-g3'
-
-  S3EventLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !GetAtt WorkflowLambda.Arn
-      Principal: s3.amazonaws.com
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn
-
-  LambdaInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref WorkflowLambda
-      Action: lambda:InvokeFunction
-      Principal: 'lambda.amazonaws.com'
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -58,8 +46,8 @@ Resources:
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: 'glueetl'
-        ScriptLocation: 's3://bdata-script/script.py'
+        Name: 'glue-etl'
+        ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: 'data-cleaning'
@@ -68,8 +56,7 @@ Resources:
       MaxRetries: 0
       NumberOfWorkers: 5
       Timeout: 200
-      AllocatedCapacity: 0
-    DependsOn: DatabaseYelp
+      AllocatedCapacity: 0  # Set to 0 to avoid conflicts
 
   CrawlerYelp:
     Type: AWS::Glue::Crawler
@@ -80,13 +67,12 @@ Resources:
       DatabaseName: !Ref DatabaseYelp
       Targets:
         S3Targets:
-          - Path: 's3://yelp-output-data-g3/'
+          - Path: 's3://yelp-output-data-g3/'  # Change the path
       TablePrefix: 'Cleanyelpdata'
       SchemaChangePolicy:
         UpdateBehavior: 'UPDATE_IN_DATABASE'
         DeleteBehavior: 'LOG'
       Configuration: '{"Version":1.0}'
-    DependsOn: WorkflowJob
 
   WorkflowLambda:
     Type: AWS::Lambda::Function
@@ -102,13 +88,22 @@ Resources:
               print(response)
               return {
                   'statusCode': 200,
-                  'body': json.dumps('Hello from AWS Lambda!')
+                  'body': json.dumps('Start Workflow!')
               }
 
       Handler: index.lambda_handler
-      Role: 'arn:aws:iam::742240590358:role/LabRole'
+      Role: 'arn:aws:iam::742240590358:role/LabRole'  # Different for everyone, change the ARN
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WorkflowLambda
+      Action: lambda:InvokeFunction
+      Principal: 'lambda.amazonaws.com'  # Corrected the principal
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -141,7 +136,7 @@ Resources:
     Properties:
       Name: 'AthenaConnectionToYelpDatabase'
       Description: 'Athena connection to the Yelp Glue database'
-      Database: 'yelpdatabase'
+      Database: 'yelpdatabase'  # Name of your Glue database
       QueryString:
         Fn::Sub:
           - |
