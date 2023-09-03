@@ -5,7 +5,7 @@ Resources:
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'yelp-input-data-g3'
+      BucketName: 'yelp-input-data-g3'  # Use the existing bucket name
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
@@ -20,7 +20,6 @@ Resources:
       Principal: s3.amazonaws.com
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !GetAtt Yelpinbucket.Arn
-    DependsOn: Yelpinbucket
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
@@ -30,12 +29,11 @@ Resources:
       Principal: 'lambda.amazonaws.com'
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !GetAtt Yelpinbucket.Arn
-    DependsOn: Yelpinbucket
 
   S3EventTrigger:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref Yelpinbucket
+      BucketName: !Ref Yelpinbucket  # Use the existing bucket name
       NotificationConfiguration:
         LambdaConfigurations:
           -
