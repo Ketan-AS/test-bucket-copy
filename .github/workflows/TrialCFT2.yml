@@ -6,6 +6,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-input-data-g3'
+      AccessControl: Private  # Adjust the access control as needed
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: 's3:ObjectCreated:*'
@@ -15,6 +16,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-output-data-g3'
+      AccessControl: Private  # Adjust the access control as needed
 
   DatabaseYelp:
     Type: AWS::Glue::Database
