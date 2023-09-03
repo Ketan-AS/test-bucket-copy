@@ -2,10 +2,16 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Resources:
+
   Yelpinbucket:
     Type: AWS::S3::Bucket
+    DependsOn: LambdaInvokePermission
     Properties:
       BucketName: 'yelp-input-data-g3'
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
@@ -32,7 +38,7 @@ Resources:
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
-        Name: 'glueetl'
+        Name: 'glue-etl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 2
@@ -86,11 +92,12 @@ Resources:
     Type: AWS::Lambda::Permission
     DependsOn: WorkflowLambda
     Properties:
-      FunctionName: !Ref WorkflowLambda
+      FunctionName: !GetAtt WorkflowLambda.Arn
       Action: lambda:InvokeFunction
       Principal: 's3.amazonaws.com'  # Corrected the principal
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
+      SourceArn: 'arn:aws:s3:::yelp-input-data-g3'  # Use GetAtt instead of Sub
+
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
