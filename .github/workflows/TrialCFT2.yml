@@ -47,7 +47,7 @@ Resources:
       WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
-      Timeout: 200
+      Timeout: 250
       AllocatedCapacity: 0  # Set to 0 to avoid conflicts
 
   CrawlerYelp:
