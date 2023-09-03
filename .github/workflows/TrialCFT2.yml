@@ -84,10 +84,11 @@ Resources:
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
+    DependsOn: WorkflowLambda
     Properties:
       FunctionName: !Ref WorkflowLambda
       Action: lambda:InvokeFunction
-      Principal: 'lambda.amazonaws.com'  # Corrected the principal
+      Principal: 's3.amazonaws.com'  # Corrected the principal
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
 
