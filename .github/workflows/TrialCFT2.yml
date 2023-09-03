@@ -11,8 +11,6 @@ Resources:
           - Event: 's3:ObjectCreated:*'
             Function: !GetAtt WorkflowLambda.Arn
 
-  
-
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -88,16 +86,6 @@ Resources:
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
 
-  # LambdaInvokePermission:
-  #   Type: AWS::Lambda::Permission
-  #   DependsOn: WorkflowLambda
-  #   Properties:
-  #     FunctionName: !Ref WorkflowLambda
-  #     Action: lambda:InvokeFunction
-  #     Principal: 's3.amazonaws.com'  # Corrected the principal
-  #     SourceAccount: !Ref AWS::AccountId
-  #     SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
-
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     DependsOn: WorkflowLambda
@@ -105,7 +93,6 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt WorkflowLambda.Arn
       Principal: "s3.amazonaws.com"
-      # SourceArn: !Sub 'arn:aws:s3:::${project}-${app}-${env}-scripts'
       SourceArn: !GetAtt Yelpinbucket.Arn
 
   WorkflowStartTrigger:
