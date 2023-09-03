@@ -104,12 +104,13 @@ Resources:
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: yelp-input-data-g3  # Reference the Yelpinbucket resource directly
+      BucketName: 'yelp-input-data-g3-unique'  # Choose a unique name here
       NotificationConfiguration:
         LambdaConfigurations:
           -
             Event: 's3:ObjectCreated:*'
             Function: !GetAtt WorkflowLambda.Arn
+
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
