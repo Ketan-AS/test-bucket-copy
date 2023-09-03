@@ -6,10 +6,6 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-input-data-g3'
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: s3:ObjectCreated:*
-            Function: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
@@ -105,19 +101,17 @@ Resources:
         - JobName: !Ref WorkflowJob
       WorkflowName: !Ref WorkflowYelp
 
-  YelpCrawlerTrigger:
+  S3EventTrigger:
     Type: AWS::Glue::Trigger
     Properties:
-      Name: 'JobSuccessfulTrigger'
+      Name: 'S3EventTrigger'
       Type: CONDITIONAL
-      StartOnCreation: TRUE
-      Description: 'Trigger to start the Yelp data crawler'
       Actions:
-        - CrawlerName: !Ref CrawlerYelp
+        - StartWorkflowRun: {}
       Predicate:
         Conditions:
           - LogicalOperator: EQUALS
-            JobName: !Ref WorkflowJob
+            CrawlerName: !Ref CrawlerYelp
             State: SUCCEEDED
       WorkflowName: !Ref WorkflowYelp
 
