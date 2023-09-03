@@ -9,16 +9,16 @@ Resources:
 
 
 
-  Yelpinbucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
-    DependsOn: S3InvokeLambdaPermission
-    Properties:
-      BucketName: 'yelp-input-data-g3'
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: s3:ObjectCreated:*
-            Function: !GetAtt WorkflowLambda.Arn
+  # Yelpinbucket:
+  #   Type: AWS::S3::Bucket
+  #   DeletionPolicy: Delete
+  #   DependsOn: S3InvokeLambdaPermission
+  #   Properties:
+  #     BucketName: 'yelp-input-data-g3'
+  #     NotificationConfiguration:
+  #       LambdaConfigurations:
+  #         - Event: s3:ObjectCreated:*
+  #           Function: !GetAtt WorkflowLambda.Arn
 
 
   Yelpoutbucket:
