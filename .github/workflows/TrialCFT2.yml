@@ -6,6 +6,10 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-input-data-g3'
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt WorkflowLambda.Arn
 
 
 
@@ -42,7 +46,7 @@ Resources:
       Name: 'yelpworkflow'
 
   WorkflowJob:
-    Type: AWS::Glue::Job
+    Type: AWS::Glue::ETL
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
@@ -51,7 +55,7 @@ Resources:
       ExecutionProperty:
         MaxConcurrentRuns: 2
       Name: 'data-cleaning'
-      GlueVersion: '3.0'
+      GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
