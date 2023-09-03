@@ -2,11 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Resources:
-  Yelpinbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: 'yelp-input-data-g3'
-
+  
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -30,15 +26,7 @@ Resources:
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !GetAtt Yelpinbucket.Arn
 
-  S3EventTrigger:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref Yelpinbucket   # Reference the Yelpinbucket resource directly
-      NotificationConfiguration:
-        LambdaConfigurations:
-          -
-            Event: 's3:ObjectCreated:*'
-            Function: !GetAtt WorkflowLambda.Arn
+
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -111,6 +99,17 @@ Resources:
       Role: 'arn:aws:iam::742240590358:role/LabRole'
       Runtime: python3.8
       FunctionName: 'LambdaforWorkflow'
+
+
+  Yelpinbucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: yelp-input-data-g3  # Reference the Yelpinbucket resource directly
+      NotificationConfiguration:
+        LambdaConfigurations:
+          -
+            Event: 's3:ObjectCreated:*'
+            Function: !GetAtt WorkflowLambda.Arn
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
