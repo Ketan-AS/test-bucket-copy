@@ -46,7 +46,7 @@ Resources:
       Name: 'yelpworkflow'
 
   WorkflowJob:
-    Type: AWS::Glue::ETL
+    Type: AWS::Glue::Glue ETL
     Properties:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
