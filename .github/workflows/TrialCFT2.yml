@@ -3,20 +3,19 @@ Description: CloudFormation template to create AWS resources
 
 Resources:
   Yelpinbucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: 'yelp-input-data-g3'
-      AccessControl: Private  # Adjust the access control as needed
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: 's3:ObjectCreated:*'
-            Function: !GetAtt WorkflowLambda.Arn
+  Type: AWS::S3::Bucket
+  Properties:
+    BucketName: 'yelp-input-data-g3'
+    NotificationConfiguration:
+      LambdaConfigurations:
+        -
+          Event: 's3:ObjectCreated:*'
+          Function: !GetAtt WorkflowLambda.Arn
 
   Yelpoutbucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: 'yelp-output-data-g3'
-      AccessControl: Private  # Adjust the access control as needed
 
   DatabaseYelp:
     Type: AWS::Glue::Database
@@ -90,12 +89,12 @@ Resources:
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
-    DependsOn: WorkflowLambda
     Properties:
+      FunctionName: !Ref WorkflowLambda
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt WorkflowLambda.Arn
-      Principal: "s3.amazonaws.com"
-      SourceArn: !GetAtt Yelpinbucket.Arn
+      Principal: 'lambda.amazonaws.com'  # Corrected the principal
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt Yelpinbucket.Arn  # Use GetAtt instead of Sub
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
@@ -138,6 +137,26 @@ Resources:
             SELECT * FROM review_final;
             SELECT * FROM user_final;
           - {}
+
+  S3EventLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt WorkflowLambda.Arn
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt Yelpinbucket.Arn
+      DependsOn: LambdaInvokePermission
+
+  S3EventTrigger:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref Yelpinbucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          -
+            Event: 's3:ObjectCreated:*'
+            Function: !GetAtt WorkflowLambda.Arn
 
 Outputs:
   WorkflowLambdaArn:
