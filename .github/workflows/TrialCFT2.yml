@@ -30,7 +30,7 @@ Resources:
     Type: AWS::Glue::Workflow
     Properties:
       Description: 'Create workflow'
-      MaxConcurrentRuns: 5
+      MaxConcurrentRuns: 1
       Name: 'yelpworkflow'
 
   WorkflowJob:
@@ -41,9 +41,9 @@ Resources:
         Name: 'glueetl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
-        MaxConcurrentRuns: 2
+        MaxConcurrentRuns: 1
       Name: 'data-cleaning'
-      GlueVersion: '3.0'
+      GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
