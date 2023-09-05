@@ -36,7 +36,7 @@ Resources:
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
-      Role: ${GLUE_JOB_ROLE}
+      Role: ${{secrets.GLUE_JOB_ROLE}}
       Command:
         Name: 'glueetl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
