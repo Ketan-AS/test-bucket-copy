@@ -36,7 +36,7 @@ Resources:
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
-      # Role: !Ref GLUE_JOB_ROLE
+      Role: !GetAtt GLUE_JOB_ROLE
       Command:
         Name: 'glueetl'
         # ScriptLocation: !Ref GLUE_JOB_SCRIPT # Change the path
