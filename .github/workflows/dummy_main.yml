@@ -34,7 +34,7 @@ jobs:
             --template-file TrialCFT2.yml \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
-              GLUE_JOB_SCRIPT=${{ secret.GLUE_JOB_SCRIPT }} \
+              GLUE_JOB_SCRIPT=${{ secrets.GLUE_JOB_SCRIPT }} \
 #              GlueJobNumWorkers=${{ inputs.GlueJobNumWorkers }}
 
       - name: Upload Script to S3 Bucket
