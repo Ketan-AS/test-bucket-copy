@@ -3,6 +3,11 @@ Description: CloudFormation template to create AWS resources
 
 Resources:
 
+Parameters:
+  JobName:
+    Type: String
+    Default: "test"
+
   Yelpinbucket:
     Type: AWS::S3::Bucket
     DependsOn: LambdaInvokePermission
@@ -42,7 +47,7 @@ Resources:
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 1
-      Name: 'data-cleaning'
+      Name: !Ref JobName
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
