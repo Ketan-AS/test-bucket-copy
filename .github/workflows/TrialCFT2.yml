@@ -36,13 +36,13 @@ Resources:
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
-      Role: !Ref GLUE_JOB_ROLE
+      # Role: !Ref GLUE_JOB_ROLE
       Command:
         Name: 'glueetl'
-        ScriptLocation: !Ref GLUE_JOB_SCRIPT # Change the path
+        # ScriptLocation: !Ref GLUE_JOB_SCRIPT # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 1
-      Name: !Ref GLUE_JOB_NAME
+      # Name: !Ref GLUE_JOB_NAME
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
