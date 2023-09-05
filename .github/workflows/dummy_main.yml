@@ -20,14 +20,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Change to your desired region
-
       - name: Deploy CloudFormation stack
+        
         run: |
           aws cloudformation deploy \
             --stack-name yelpresource \
@@ -36,6 +30,11 @@ jobs:
             --parameter-overrides \
               GLUE_JOB_SCRIPT=${{ secrets.GLUE_JOB_SCRIPT }} \
 #              GlueJobNumWorkers=${{ inputs.GlueJobNumWorkers }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
 
       - name: Upload Script to S3 Bucket
