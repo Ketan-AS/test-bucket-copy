@@ -38,6 +38,7 @@ jobs:
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
 
+
       - name: Upload Script to S3 Bucket
         run: |
           aws s3 cp script.py s3://bdata-script/
