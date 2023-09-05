@@ -42,7 +42,7 @@ Resources:
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 1
-      Name: 'data-cleaning'
+      Name: 'yelp-data-cleaning'
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0

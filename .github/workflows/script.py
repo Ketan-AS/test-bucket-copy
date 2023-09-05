@@ -11,7 +11,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from pyspark.sql.functions import udf
-from pyspark.sql.types import StringType
+from pyspark.sql.types import StringType, DateType, TimestampType
 import nltk
 nltk.download('vader_lexicon')
 
@@ -39,10 +39,11 @@ attributes_to_check = [
      "WiFi", "Caters", "RestaurantsDelivery", "RestaurantsTakeOut", "CoatCheck",
      "RestaurantsPriceRange2", "BikeParking"
  ]
-concat_attributes = udf(lambda attrs: ", ".join([attr for attr in attributes_to_check if attrs[attr]] if attrs else []), StringType())
-yelp_df = bussdf.withColumn("present_attributes", concat_attributes(col("attributes")))
-concat_expr = concat_ws(", ", *[expr(f"'{attr}: ' || attributes.{attr}") for attr in attributes_to_check])
-yelp_df = yelp_df.withColumn("Values_attributes", concat_expr)
+# Create a single column for present attributes and attribute names/values
+yelp_df = bussdf.withColumn("Attributes", concat_ws(", ", *[
+    when(bussdf.attributes[attr].isNotNull(), concat_ws(": ", lit(attr), bussdf.attributes[attr]))
+    for attr in attributes_to_check
+]))
 
 
 #STEP - 2
@@ -90,30 +91,21 @@ for day in days_of_week:
 # STEP 4
 
 checkin_df = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_checkin.json")
+# Split the "date" column and explode it
 checkin_df = checkin_df.withColumn("date_time", split(col("date"), ","))
 checkin_df = checkin_df.withColumn("date_time_exploded", explode(col("date_time")))
-checkin_df = checkin_df.withColumn("timestamp", col("date_time_exploded").cast("timestamp"))
-checkin_df = checkin_df.withColumn("date", date_format(col("timestamp"), "yyyy-MM-dd"))
-checkin_df = checkin_df.withColumn("time", date_format(col("timestamp"), "HH:mm:ss"))
+# Convert "date_time_exploded" to a timestamp
+checkin_df = checkin_df.withColumn("timestamp", col("date_time_exploded").cast(TimestampType()))
+# Extract "date" as DateType
+checkin_df = checkin_df.withColumn("date", date_format(col("timestamp"), "yyyy-MM-dd").cast(DateType()))
+# Extract "time" as TimestampType
+checkin_df = checkin_df.withColumn("time", col("timestamp"))
+# Select the desired columns
 checkin_df = checkin_df.select("business_id", "date", "time")
 
 # STEP - 5
 tips_df = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_tip.json")
-
-preprocessed_tips = tips_df.withColumn("preprocessed_text",
-    split(lower(regexp_replace(col("text"), "[^a-zA-Z\\s]", "")), " ")
-)
-remover = StopWordsRemover(inputCol="preprocessed_text", outputCol="words")
-words_removed = remover.transform(preprocessed_tips)
-exploded_words = words_removed.select("business_id", "user_id", "text", explode("words").alias("word"))
-word_counts = exploded_words.groupBy("business_id", "user_id", "text", "word").count()
-window_spec = Window.partitionBy("business_id", "user_id").orderBy(col("count").desc())
-ranked_word_counts = word_counts.withColumn("rank", row_number().over(window_spec))
-top_words_per_business_user = ranked_word_counts.filter(col("rank") <= 10)
-grouped_words = top_words_per_business_user.groupBy("business_id", "user_id", "text").agg(
-    concat_ws(", ", collect_list("word")).alias("top_words")
-)
-grouped_words.show(truncate=False)
+tips_df = tips_df.withColumn("date", to_date(tips_df["date"]))
 
 sia = SentimentIntensityAnalyzer()
 def vader_sentiment(text):
@@ -126,18 +118,27 @@ def vader_sentiment(text):
     else:
             return 'neutral'
 vader_sentiment_udf = udf(vader_sentiment, StringType())
-tip_sent = grouped_words.withColumn("sentiment", vader_sentiment_udf(grouped_words["text"]))
+tip_sent = tips_df.withColumn("sentiment", vader_sentiment_udf(tips_df["text"]))
 
 # STEP - 6
 
 rev = spark.read.json('s3://yelp-input-data-g3/yelp_academic_dataset_review.json')
+# Convert the "date" column to a timestamp
+rev = rev.withColumn("timestamp", to_timestamp(col("date"), "yyyy-MM-dd HH:mm:ss"))
+
+# Extract the date and time from the "timestamp" column
+rev = rev.withColumn("date_only", to_date(col("timestamp")))
+rev = rev.withColumn("time_only", to_timestamp(date_format(col("timestamp"), "HH:mm:ss"), "yyyy-MM-dd HH:mm:ss"))
+
+# Select the desired columns
+rev = rev.select("business_id", "cool", "date_only", "time_only", "funny", "review_id", "stars", "text", "useful", "user_id")
 rev_sentiment = rev.withColumn("sentiment", vader_sentiment_udf(rev["text"]))
 
 # STEP - 7
 
 userdf = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_user.json")
 df = userdf.withColumn("yelping_since_timestamp", to_timestamp(col("yelping_since"), "yyyy-MM-dd HH:mm:ss")) \
-    .withColumn("yelping_since_date", date_format(col("yelping_since_timestamp"), "yyyy-MM-dd"))
+           .withColumn("yelping_since_date", to_date(col("yelping_since_timestamp")))
 
 split_expr = split(df['elite'], ',')
 df = df.withColumn('elite_count', size(split_expr))
