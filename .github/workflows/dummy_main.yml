@@ -1,0 +1,46 @@
+name: Deploy Yelp Stack
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      GlueJobScriptLocation:
+        description: 'S3 location of the Glue job script'
+        required: true
+      GlueJobNumWorkers:
+        description: 'Number of Glue job workers'
+        required: true
+
+jobs:
+  cft_deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Change to your desired region
+
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --stack-name yelpresource \
+            --template-file TrialCFT2.yml \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              GLUE_JOB_SCRIPT=${{ secret.GLUE_JOB_SCRIPT }} \
+#              GlueJobNumWorkers=${{ inputs.GlueJobNumWorkers }}
+
+      - name: Upload Script to S3 Bucket
+        run: |
+          aws s3 cp script.py s3://bdata-script/
+
+      - name: Dump raw data to S3
+        run: |
+          aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data-g3/ --recursive
