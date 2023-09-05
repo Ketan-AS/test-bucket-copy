@@ -37,6 +37,7 @@ jobs:
               GLUE_JOB_SCRIPT=${{ secrets.GLUE_JOB_SCRIPT }} \
 #              GlueJobNumWorkers=${{ inputs.GlueJobNumWorkers }}
 
+
       - name: Upload Script to S3 Bucket
         run: |
           aws s3 cp script.py s3://bdata-script/
