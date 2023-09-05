@@ -9,8 +9,8 @@ jobs:
   cft_deployement:
     runs-on: ubuntu-latest
     env:
-      GLUE_JOB_NAME: ${{ secrets.GLUE_JOB_NAME }}
-      GLUE_JOB_SCRIPT: ${{ secrets.GLUE_JOB_SCRIPT }}
+      # GLUE_JOB_NAME: ${{ secrets.GLUE_JOB_NAME }}
+      # GLUE_JOB_SCRIPT: ${{ secrets.GLUE_JOB_SCRIPT }}
       GLUE_JOB_ROLE: ${{ secrets.GLUE_JOB_ROLE }}
       # Add more parameters as needed
 
