@@ -6,7 +6,8 @@ Resources:
 Parameters:
   JobName:
     Type: String
-    Default: "test"
+    Default : "test"
+
 
   Yelpinbucket:
     Type: AWS::S3::Bucket
@@ -41,7 +42,7 @@ Parameters:
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
-      Role: ${{secrets.GLUE_JOB_ROLE}}
+      Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: 'glueetl'
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
