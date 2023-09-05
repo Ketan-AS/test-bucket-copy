@@ -36,18 +36,18 @@ Resources:
   WorkflowJob:
     Type: AWS::Glue::Job
     Properties:
-      Role: arn:aws:iam::742240590358:role/LabRole
+      Role: !Ref GLUE_JOB_ROLE
       Command:
         Name: 'glueetl'
-        ScriptLocation: 's3://bdata-script/script.py'  # Change the path
+        ScriptLocation: !Ref GLUE_JOB_SCRIPT # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 1
-      Name: 'data-cleaning'
+      Name: !Ref GLUE_JOB_NAME
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
       NumberOfWorkers: 5
-      Timeout: 200
+      Timeout: 60
       AllocatedCapacity: 0  # Set to 0 to avoid conflicts
 
   CrawlerYelp:
@@ -94,9 +94,9 @@ Resources:
     Properties:
       FunctionName: !GetAtt WorkflowLambda.Arn
       Action: lambda:InvokeFunction
-      Principal: 's3.amazonaws.com'  # Corrected the principal
+      Principal: 's3.amazonaws.com'  
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: 'arn:aws:s3:::yelp-input-data-g3'  # Use GetAtt instead of Sub
+      SourceArn: 'arn:aws:s3:::yelp-input-data-g3' 
 
 
   WorkflowStartTrigger:
@@ -130,7 +130,7 @@ Resources:
     Properties:
       Name: 'AthenaConnectionToYelpDatabase'
       Description: 'Athena connection to the Yelp Glue database'
-      Database: 'yelpdatabase'  # Name of your Glue database
+      Database: 'yelpdatabase'  # Glue database
       QueryString:
         Fn::Sub:
           - |
