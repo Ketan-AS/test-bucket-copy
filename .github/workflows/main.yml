@@ -38,14 +38,14 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Run Glue Job
-        run: |
-          aws glue start-job-run \
-            --job-name $GLUE_JOB_NAME \
-            --script-location $GLUE_JOB_SCRIPT \
-            --role $GLUE_JOB_ROLE
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      # - name: Run Glue Job
+      #   run: |
+      #     aws glue start-job-run \
+      #       --job-name $GLUE_JOB_NAME \
+      #       --script-location $GLUE_JOB_SCRIPT \
+      #       --role $GLUE_JOB_ROLE
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
