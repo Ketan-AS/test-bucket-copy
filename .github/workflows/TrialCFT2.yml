@@ -1,17 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
-Parameters:
-  GlueJobScriptLocation:
-    Description: 'S3 location of the Glue job script'
-    Type: String
-    Default: 's3://bdata-script/script.py'  # Default script location
-  # GlueJobNumWorkers:
-  #   Description: 'Number of Glue job workers'
-  #   Type: Number
-  #   Default: 5  # Default number of workers
-
 Resources:
+
+
+
   Yelpinbucket:
     Type: AWS::S3::Bucket
     DependsOn: LambdaInvokePermission
@@ -48,14 +41,14 @@ Resources:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: 'glueetl'
-        ScriptLocation: !Ref GlueJobScriptLocation  # Use the parameter for script location
+        ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 1
       Name: 'yelp-data-cleaning'
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
       MaxRetries: 0
-      NumberOfWorkers: 5  # Use the parameter for the number of workers
+      NumberOfWorkers: 5
       Timeout: 60
       AllocatedCapacity: 0  # Set to 0 to avoid conflicts
 
@@ -106,6 +99,7 @@ Resources:
       Principal: 's3.amazonaws.com'  
       SourceAccount: !Ref AWS::AccountId
       SourceArn: 'arn:aws:s3:::yelp-input-data-g3' 
+
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger
