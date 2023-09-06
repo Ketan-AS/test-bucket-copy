@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Parameters:
-  GlueJobScriptLocation:
+  GLUE_JOB_SCRIPT:
     Description: 'S3 location of the Glue job script'
     Type: String
     Default: 's3://bdata-script/script.py'  # Default script location
@@ -48,7 +48,7 @@ Resources:
       Role: arn:aws:iam::742240590358:role/LabRole
       Command:
         Name: 'glueetl'
-        ScriptLocation: !Ref GlueJobScriptLocation  # Use the parameter for script location
+        ScriptLocation: !Ref GLUE_JOB_SCRIPT  # Use the parameter for script location
       ExecutionProperty:
         MaxConcurrentRuns: 1
       Name: 'yelp-data-cleaning'
