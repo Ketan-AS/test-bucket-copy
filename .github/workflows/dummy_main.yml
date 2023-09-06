@@ -23,11 +23,10 @@ jobs:
           node-version: '16'  # Specify the Node.js version you want to use
 
       - name: Deploy CloudFormation stack
-        
         run: |
           aws cloudformation deploy \
             --stack-name yelpresource \
-            --template-file TrialCFT2.yml \
+            --template-file .github/workflows/TrialCFT2.yml  # Adjust the path as needed
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
               GLUE_JOB_SCRIPT=${{ secrets.GLUE_JOB_SCRIPT }}
@@ -37,12 +36,10 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
+      # - name: Upload Script to S3 Bucket
+      #   run: |
+      #     aws s3 cp script.py s3://bdata-script/
 
-
-      - name: Upload Script to S3 Bucket
-        run: |
-          aws s3 cp script.py s3://bdata-script/
-
-      - name: Dump raw data to S3
-        run: |
-          aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data-g3/ --recursive
+      # - name: Dump raw data to S3
+      #   run: |
+      #     aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data-g3/ --recursive
