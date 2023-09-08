@@ -19,9 +19,9 @@ jobs:
           aws cloudformation deploy \
             --stack-name yelpresource \
             --template-file .github/workflows/TrialCFT2.yml \
-            --parameter-overrides NumberOfWorkers=${{ vars.NUMBEROFWORKERS }} 
-                                  MaxRetries=${{ vars.MAXRETRIES }}
-                                  Timeout=${{ vars.TIMEOUT }} \
+            --parameter-overrides NumberOfWorkers=5
+                                  MaxRetries=0
+                                  Timeout=60 \
             --capabilities CAPABILITY_NAMED_IAM
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
