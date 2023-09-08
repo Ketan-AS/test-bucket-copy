@@ -59,7 +59,7 @@ Resources:
       MaxRetries: !Ref MaxRetries
       NumberOfWorkers: !Ref NumberOfWorkers
       Timeout: !Ref Timeout
-      AllocatedCapacity: 0  # Set to 0 to avoid conflicts
+      
 
   CrawlerYelp:
     Type: AWS::Glue::Crawler
