@@ -3,6 +3,18 @@ Description: CloudFormation template to create AWS resources
 
 Resources:
 
+Parameters:
+  NumberOfWorkers:
+    Type: Number
+    Description: Number of workers for the Glue job
+  MaxRetries:
+    Type: Number
+    Description: MaxRetries for the Glue job
+  Timeout:
+    Type: Number
+    Description: Timeout for the Glue job
+
+
   Yelpinbucket:
     Type: AWS::S3::Bucket
     DependsOn: LambdaInvokePermission
@@ -45,9 +57,9 @@ Resources:
       Name: 'yelp-data-cleaning'
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
-      MaxRetries: 0
-      NumberOfWorkers: 5
-      Timeout: 60
+      MaxRetries: !Ref MaxRetries
+      NumberOfWorkers: !Ref NumberOfWorkers
+      Timeout: !Ref Timeout
       AllocatedCapacity: 0  # Set to 0 to avoid conflicts
 
   CrawlerYelp:
