@@ -3,6 +3,7 @@ Description: CloudFormation template to create AWS resources
 
 Resources:
 
+
 Parameters:
   NumberOfWorkers:
     Type: Number
@@ -17,7 +18,7 @@ Parameters:
 
   Yelpinbucket:
     Type: AWS::S3::Bucket
-    DependsOn: LambdaInvokePermission
+    # DependsOn: LambdaInvokePermission
     Properties:
       BucketName: 'yelp-input-data-g3'
       NotificationConfiguration:
