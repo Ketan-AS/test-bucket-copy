@@ -2,9 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create AWS resources
 
 Parameters:
+
   NumberOfWorkers:
     Type: Number
-    Default: 3
+    Default: 2
     Description: Number of workers for the Glue job
   MaxRetries:
     Type: Number
