@@ -4,11 +4,14 @@ Description: CloudFormation template to create AWS resources
 Parameters:
   NumberOfWorkers:
     Type: Number
+    Default: 3
     Description: Number of workers for the Glue job
   MaxRetries:
     Type: Number
+    Default: 0
     Description: MaxRetries for the Glue job
   Timeout:
+    Default: 30
     Type: Number
     Description: Timeout for the Glue job
 
