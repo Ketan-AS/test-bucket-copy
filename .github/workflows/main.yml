@@ -13,37 +13,53 @@ jobs:
         uses: actions/checkout@v2
 
 
+      # - name: Deploy CloudFormation stack
+      #   run: |
+      #     aws cloudformation deploy \
+      #       --stack-name yelpresource \
+      #       --template-file .github/workflows/TrialCFT2.yml \
+      #       --parameter-overrides NumberOfWorkers=5 MaxRetries=0 Timeout=60 \
+      #       --capabilities CAPABILITY_NAMED_IAM 
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
+
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
             --stack-name yelpresource \
             --template-file .github/workflows/TrialCFT2.yml \
-            --parameter-overrides NumberOfWorkers=5 MaxRetries=0 Timeout=60 \
-            --capabilities CAPABILITY_NAMED_IAM 
+            --parameter-overrides NumberOfWorkers=${{ vars.NUMBEROFWORKERS }} 
+                                  MaxRetries=${{ vars.MAXRETRIES }}
+                                  Timeout=${{ vars.TIMEOUT }} \
+            --capabilities CAPABILITY_IAM
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Upload Script to S3 Bucket
-        run: |
-          aws s3 cp .github/workflows/script.py s3://bdata-script/
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      # - name: Upload Script to S3 Bucket
+      #   run: |
+      #     aws s3 cp .github/workflows/script.py s3://bdata-script/
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
 
-      - name: Dump raw data to S3
-        run: aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data-g3/ --recursive # Check this path
+      # - name: Dump raw data to S3
+      #   run: aws s3 cp s3://yelp-raw-data/ s3://yelp-input-data-g3/ --recursive # Check this path
 
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}   
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}   
           
       
       
