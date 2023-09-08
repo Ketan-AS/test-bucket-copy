@@ -9,7 +9,7 @@ Parameters:
     Description: Number of workers for the Glue job
   MaxRetries:
     Type: Number
-    Default: 0
+    Default: 1
     Description: MaxRetries for the Glue job
   Timeout:
     Default: 30
