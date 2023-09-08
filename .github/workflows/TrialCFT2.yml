@@ -20,7 +20,7 @@ Resources:
   Yelpinbucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: 'yelp-input-data-g3'
+      BucketName: 'datalake-rawzone-g3'
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -110,7 +110,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: 's3.amazonaws.com'  
       SourceAccount: !Ref AWS::AccountId
-      SourceArn: 'arn:aws:s3:::yelp-input-data-g3' 
+      SourceArn: 'arn:aws:s3:::datalake-rawzone-g3' 
 
   WorkflowStartTrigger:
     Type: AWS::Glue::Trigger

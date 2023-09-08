@@ -26,7 +26,7 @@ job.init(args['JOB_NAME'], args)
 
 # STEP 1
 
-bussdf = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_business.json")
+bussdf = spark.read.json("s3://datalake-rawzone-g3/yelp_academic_dataset_business.json")
 
 attributes_to_check = [
      "AcceptsInsurance", "AgesAllowed", "Alcohol", "Ambience", "BYOB",
@@ -90,7 +90,7 @@ for day in days_of_week:
 
 # STEP 4
 
-checkin_df = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_checkin.json")
+checkin_df = spark.read.json("s3://datalake-rawzone-g3/yelp_academic_dataset_checkin.json")
 # Split the "date" column and explode it
 checkin_df = checkin_df.withColumn("date_time", split(col("date"), ","))
 checkin_df = checkin_df.withColumn("date_time_exploded", explode(col("date_time")))
@@ -104,7 +104,7 @@ checkin_df = checkin_df.withColumn("time", col("timestamp"))
 checkin_df = checkin_df.select("business_id", "date", "time")
 
 # STEP - 5
-tips_df = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_tip.json")
+tips_df = spark.read.json("s3://datalake-rawzone-g3/yelp_academic_dataset_tip.json")
 tips_df = tips_df.withColumn("date", to_date(tips_df["date"]))
 
 sia = SentimentIntensityAnalyzer()
@@ -122,7 +122,7 @@ tip_sent = tips_df.withColumn("sentiment", vader_sentiment_udf(tips_df["text"]))
 
 # STEP - 6
 
-rev = spark.read.json('s3://yelp-input-data-g3/yelp_academic_dataset_review.json')
+rev = spark.read.json('s3://datalake-rawzone-g3/yelp_academic_dataset_review.json')
 # Convert the "date" column to a timestamp
 rev = rev.withColumn("timestamp", to_timestamp(col("date"), "yyyy-MM-dd HH:mm:ss"))
 
@@ -136,7 +136,7 @@ rev_sentiment = rev.withColumn("sentiment", vader_sentiment_udf(rev["text"]))
 
 # STEP - 7
 
-userdf = spark.read.json("s3://yelp-input-data-g3/yelp_academic_dataset_user.json")
+userdf = spark.read.json("s3://datalake-rawzone-g3/yelp_academic_dataset_user.json")
 df = userdf.withColumn("yelping_since_timestamp", to_timestamp(col("yelping_since"), "yyyy-MM-dd HH:mm:ss")) \
            .withColumn("yelping_since_date", to_date(col("yelping_since_timestamp")))
 
