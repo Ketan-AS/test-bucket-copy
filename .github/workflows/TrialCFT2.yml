@@ -18,7 +18,7 @@ Parameters:
 
   Yelpinbucket:
     Type: AWS::S3::Bucket
-    # DependsOn: LambdaInvokePermission
+    DependsOn: LambdaInvokePermission
     Properties:
       BucketName: 'yelp-input-data-g3'
       NotificationConfiguration:
@@ -55,6 +55,7 @@ Parameters:
         ScriptLocation: 's3://bdata-script/script.py'  # Change the path
       ExecutionProperty:
         MaxConcurrentRuns: 1
+      ExecutionClass: FLEX
       Name: 'yelp-data-cleaning'
       GlueVersion: '4.0'
       WorkerType: 'G.1X'
